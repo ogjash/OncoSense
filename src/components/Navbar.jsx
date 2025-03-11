@@ -1,12 +1,23 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
+    setIsMenuOpen(false);
+  };
+
+  const handleSignup = () => {
+    navigate('/signup');
+    setIsMenuOpen(false);
   };
 
   return (
@@ -15,18 +26,14 @@ const Navbar = () => {
       animate={{ y: 0 }}
       className="fixed top-4 left-4 right-4 z-50">
       <div className="relative">
-        {/* Dock Background */}
-        <div className="absolute inset-0 bg-secondary-dark/80 backdrop-blur-xl rounded-2xl border border-primary/20 shadow-lg shadow-primary/5"></div>
+        <div className="absolute inset-0  backdrop-blur-xl rounded-2xl border border-primary/20 shadow-lg shadow-primary/5"></div>
         
-        {/* Content */}
         <div className="relative px-8 py-4">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            {/* Logo */}
             <Link to="/" className="text-2xl font-bold text-primary">
               OncoSense
             </Link>
 
-            {/* Navigation Links */}
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/" className="text-gray-300 hover:text-primary transition-colors">
                 Home
@@ -42,13 +49,24 @@ const Navbar = () => {
               </Link>
             </div>
 
-            {/* CTA Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="hidden md:block bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-full transition-colors shadow-lg shadow-primary/20">
-              Free Demo
-            </motion.button>
+            <div className="hidden md:flex items-center space-x-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleLogin}
+                className="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-full transition-colors shadow-lg shadow-primary/20"
+              >
+                Login
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleSignup}
+                className="bg-transparent hover:bg-primary/10 text-primary px-6 py-2 rounded-full transition-colors border border-primary"
+              >
+                Sign Up
+              </motion.button>
+            </div>
 
             {/* Mobile menu button */}
             <div className="md:hidden">
@@ -124,14 +142,25 @@ const Navbar = () => {
               >
                 Insights
               </Link>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-full transition-colors shadow-lg shadow-primary/20"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Free Demo
-              </motion.button>
+              
+              <div className="space-y-3">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-full transition-colors shadow-lg shadow-primary/20"
+                  onClick={handleLogin}
+                >
+                  Login
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full bg-transparent hover:bg-primary/10 text-primary px-6 py-3 rounded-full transition-colors border border-primary"
+                  onClick={handleSignup}
+                >
+                  Sign Up
+                </motion.button>
+              </div>
             </div>
           </motion.div>
         )}

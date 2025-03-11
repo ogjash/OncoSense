@@ -1,6 +1,21 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 
+const particleColors = [
+  '#FF00FF',
+  '#DA70D6',
+  '#BA55D3',
+  '#9400D3',
+  '#1E90FF',
+  '#4169E1',
+  '#0000FF',
+  '#4B0082',
+];
+
+const getRandomColor = () => {
+  return particleColors[Math.floor(Math.random() * particleColors.length)];
+};
+
 const StarRing = () => {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -9,7 +24,7 @@ const StarRing = () => {
   const fps = 120;
   const radius = 200;
   const numInnerStars = 150;
-  const starSize = 2;
+  const starSize = 3;
 
   // Create particles for the ring
   const createParticles = () => {
@@ -36,7 +51,7 @@ const StarRing = () => {
         x: Math.random() * radius * 2 - radius,
         y: Math.random() * radius * 2 - radius,
         size: starSize,
-        color: '#DF00FF',
+        color: getRandomColor(),
       });
     }
     return stars;
@@ -86,7 +101,7 @@ const StarRing = () => {
           0,
           Math.PI * 2
         );
-        context.fillStyle = '#DF00FF';
+        context.fillStyle = getRandomColor();
         context.fill();
         context.closePath();
       }
@@ -176,7 +191,7 @@ const StarRing = () => {
     <div ref={containerRef} className="absolute inset-0 pointer-events-none">
       <canvas 
         ref={canvasRef} 
-        className="w-full h-full blur-[2px] opacity-80" 
+        className="w-full h-full blur-[1px] opacity-90"
       />
     </div>
   );

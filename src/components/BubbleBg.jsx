@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import StarRing from "./StarRing";
+
 
 const BubbleBackground = () => {
   const containerRef = useRef(null);
@@ -95,8 +95,6 @@ const BubbleBackground = () => {
         />
       </div>
 
-      {/* Circular Star Ring */}
-      <StarRing />
     </div>
   );
 };
