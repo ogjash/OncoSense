@@ -1,13 +1,41 @@
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import CircuitLine from '../components/CircuitLine';
+import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const Signup = () => {
   const navigate = useNavigate();
-  const handleSubmit = (e) => {
+  const { signup, googleAuth } = useAuth();
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle signup logic here
+    const firstName = e.target.firstName.value;
+    const lastName = e.target.lastName.value;
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+    const confirmPassword = e.target.confirmPassword.value;
+  
+    if (password !== confirmPassword) {
+    
+      toast.error("Passwords do not match");
+      return;
+    }
+  
+    try {
+      await signup(email, password, firstName, lastName);
+      // navigate('/dashboard');
+    } catch (error) {
+      toast.error(`Error signing up: ${error.message}`);
+    }
   };
+  const handleGoogleAuth = async (e) => {
+      e.preventDefault();
+      try {
+        await googleAuth();
+      } catch (error) {
+        toast.error(`Error logging in: ${error.message}`);
+      }
+    }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-[#170b2c] to-[#220046]">
@@ -152,6 +180,7 @@ const Signup = () => {
 
             <button
               type="button"
+              onClick={handleGoogleAuth}
               className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 py-3 rounded-lg hover:bg-gray-100 transition-colors font-medium"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
