@@ -23,8 +23,8 @@ const Home = () => {
               className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight"
             >
               <span className="block"><span className="text-primary">AI</span>-Powered</span>
-              <span className="block">Platform for Cancer</span>
-              <span className="block">Care Providers</span>
+              <span className="block">Chut finder </span>
+              <span className="block"> Sex Care Providers</span>
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
