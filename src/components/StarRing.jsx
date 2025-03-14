@@ -188,7 +188,7 @@ const StarRing = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="absolute inset-0 pointer-events-none">
+    <div ref={containerRef} className="absolute inset-0 pointer-events-none z-[2]">
       <canvas 
         ref={canvasRef} 
         className="w-full h-full blur-[1px] opacity-90"

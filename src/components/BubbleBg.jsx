@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 
-
 const BubbleBackground = () => {
   const containerRef = useRef(null);
   const interactiveRef = useRef(null);
@@ -45,9 +44,9 @@ const BubbleBackground = () => {
   return (
     <div
       ref={containerRef}
-      className="relative w-screen h-screen overflow-hidden bg-black"
+      className="absolute inset-0 overflow-hidden bg-black z-[1] h-screen w-full"
     >
-      <svg className="fixed top-0 left-0 w-0 h-0">
+      <svg className="absolute top-0 left-0 w-0 h-0">
         <defs>
           <filter id="goo">
             <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
@@ -94,7 +93,6 @@ const BubbleBackground = () => {
           className="interactive absolute w-full h-full bg-[radial-gradient(circle_at_center,rgba(75,0,130,0.8)_0,rgba(75,0,130,0)_50%)] mix-blend-screen opacity-70"
         />
       </div>
-
     </div>
   );
 };

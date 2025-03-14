@@ -5,7 +5,7 @@ const Footer = () => {
   const location = useLocation();
   
   // Define the page order for navigation
-  const pageOrder = ['/', '/solutions', '/how-it-works', '/insights'];
+  const pageOrder = ['/', '/what-we-do', '/solutions', '/insights', '/about'];
   
   // Get current and next page
   const currentIndex = pageOrder.indexOf(location.pathname);
@@ -15,9 +15,10 @@ const Footer = () => {
   function getPageName(path) {
     switch(path) {
       case '/': return 'Home';
+      case '/what-we-do': return 'What We Do';
       case '/solutions': return 'Solutions';
-      case '/how-it-works': return 'How It Works';
       case '/insights': return 'Insights';
+      case '/about': return 'About Us';
       default: return 'Home';
     }
   }
@@ -28,9 +29,9 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Company Info */}
           <div>
-            <h3 className="text-3xl font-bold text-primary mb-6">OncoSense</h3>
+            <h3 className="text-3xl font-bold text-primary mb-6">HospitalFlow</h3>
             <p className="text-gray-400 text-lg">
-              Empowering healthcare providers with AI-driven solutions for better cancer care.
+              Transforming healthcare delivery through intelligent automation and data-driven solutions.
             </p>
           </div>
 
@@ -44,18 +45,23 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/what-we-do" className="text-gray-400 hover:text-primary transition-colors text-lg">
+                  What We Do
+                </Link>
+              </li>
+              <li>
                 <Link to="/solutions" className="text-gray-400 hover:text-primary transition-colors text-lg">
                   Solutions
                 </Link>
               </li>
               <li>
-                <Link to="/how-it-works" className="text-gray-400 hover:text-primary transition-colors text-lg">
-                  How it Works
+                <Link to="/insights" className="text-gray-400 hover:text-primary transition-colors text-lg">
+                  Insights
                 </Link>
               </li>
               <li>
-                <Link to="/insights" className="text-gray-400 hover:text-primary transition-colors text-lg">
-                  Insights
+                <Link to="/about" className="text-gray-400 hover:text-primary transition-colors text-lg">
+                  About Us
                 </Link>
               </li>
             </ul>
@@ -67,7 +73,7 @@ const Footer = () => {
             <ul className="space-y-4 text-gray-400 text-lg">
               <li>123 Healthcare Ave</li>
               <li>Medical District</li>
-              <li>contact@oncosense.com</li>
+              <li>contact@hospitalflow.com</li>
               <li>+1 (555) 123-4567</li>
             </ul>
           </div>
@@ -105,7 +111,7 @@ const Footer = () => {
                 Next Page
               </span>
               <div className="flex items-center gap-4">
-                <span className="text-[70px] text-gray-400 group-hover:text-primary transition-colors font-semibold">
+                <span className="text-[70px] text-gray-400 group-hover:text-primary transition-colors font-semibold break-words">
                   {nextPageName}
                 </span>
                 <motion.svg
@@ -133,7 +139,7 @@ const Footer = () => {
         <div className="mt-16">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-lg">
-              © {new Date().getFullYear()} OncoSense. All rights reserved.
+              © {new Date().getFullYear()} HospitalFlow. All rights reserved.
             </p>
             <div className="flex space-x-8 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-primary transition-colors text-lg">

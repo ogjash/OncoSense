@@ -24,28 +24,31 @@ const Navbar = () => {
     <motion.nav 
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="fixed top-4 left-4 right-4 z-50">
+      className="fixed top-4 left-4 right-4 z-50 overflow-x-hidden">
       <div className="relative">
         <div className="absolute inset-0  backdrop-blur-xl rounded-2xl border border-primary/20 shadow-lg shadow-primary/5"></div>
         
-        <div className="relative px-8 py-4">
+        <div className="relative px-4 sm:px-8 py-4">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <Link to="/" className="text-2xl font-bold text-primary">
-              OncoSense
+              HospitalFlow
             </Link>
 
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/" className="text-gray-300 hover:text-primary transition-colors">
                 Home
               </Link>
+              <Link to="/what-we-do" className="text-gray-300 hover:text-primary transition-colors">
+                What We Do
+              </Link>
               <Link to="/solutions" className="text-gray-300 hover:text-primary transition-colors">
                 Solutions
               </Link>
-              <Link to="/how-it-works" className="text-gray-300 hover:text-primary transition-colors">
-                How it Works
-              </Link>
               <Link to="/insights" className="text-gray-300 hover:text-primary transition-colors">
                 Insights
+              </Link>
+              <Link to="/about" className="text-gray-300 hover:text-primary transition-colors">
+                About Us
               </Link>
             </div>
 
@@ -111,7 +114,7 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden absolute top-full left-0 right-0 mt-4 bg-secondary-dark/95 backdrop-blur-xl rounded-2xl border border-primary/20 shadow-lg shadow-primary/5"
+            className="md:hidden fixed top-20 left-4 right-4 bg-secondary-dark/95 backdrop-blur-xl rounded-2xl border border-primary/20 shadow-lg shadow-primary/5 z-50"
           >
             <div className="p-6 space-y-6">
               <Link 
@@ -122,6 +125,13 @@ const Navbar = () => {
                 Home
               </Link>
               <Link 
+                to="/what-we-do" 
+                className="block text-gray-300 hover:text-primary transition-colors text-lg"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                What We Do
+              </Link>
+              <Link 
                 to="/solutions" 
                 className="block text-gray-300 hover:text-primary transition-colors text-lg"
                 onClick={() => setIsMenuOpen(false)}
@@ -129,18 +139,18 @@ const Navbar = () => {
                 Solutions
               </Link>
               <Link 
-                to="/how-it-works" 
-                className="block text-gray-300 hover:text-primary transition-colors text-lg"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                How it Works
-              </Link>
-              <Link 
                 to="/insights" 
                 className="block text-gray-300 hover:text-primary transition-colors text-lg"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Insights
+              </Link>
+              <Link 
+                to="/about" 
+                className="block text-gray-300 hover:text-primary transition-colors text-lg"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About Us
               </Link>
               
               <div className="space-y-3">

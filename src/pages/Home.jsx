@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import BubbleBackground from '../components/BubbleBg';
 import StarRing from '../components/StarRing';
-// Import images
 import diagnosisImage from '../assets/images/Ai_Diagnosis.webp';
 import treatmentImage from '../assets/images/Treatment_Planning.webp';
 import trackingImage from '../assets/images/Progress_Tracking.webp';
@@ -15,24 +14,25 @@ const Home = () => {
         
         {/* Content */}
         <div className="absolute inset-0 z-10 flex items-center">
-          <div className="w-full px-4 sm:px-6 lg:px-8 text-left lg:ml-40">
+          <div className="w-full px-4 sm:px-6 lg:px-8 text-left lg:ml-4 xl:ml-40">
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight"
+              className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight"
             >
               <span className="block"><span className="text-primary">AI</span>-Powered</span>
-              <span className="block">Platform for Cancer</span>
-              <span className="block">Care Providers</span>
+              <span className="block">Hospital Management</span>
+              <span className="block">Smarter Care, Faster Service</span>
+
             </motion.h1>
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-xl text-gray-300 mb-8 max-w-2xl">
-              <span className="block">Accelerating Research, Enhancing Quality, </span>
-              <span className="block">and Streamlining Operations for Oncology Providers.</span>
+              <span className="block"> Streamline Queues, Appointments</span>
+              <span className="block">and Patient Flows with Intelligent Automation</span>
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -123,49 +123,49 @@ const features = [
   {
     icon: (
       <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    image: diagnosisImage,
-    title: "AI-Powered Diagnosis",
-    description: "Our platform collects and analyzes patient data from various sources to create a comprehensive health profile.",
-    features: [
-      "Automated data collection",
-      "Real-time analysis",
-      "Secure data storage",
-      "Comprehensive health profile"
-    ]
-  },
-  {
-    icon: (
-      <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),
-    image: treatmentImage,
-    title: "Treatment Planning",
-    description: "Advanced AI algorithms analyze the collected data to assist in accurate cancer detection and diagnosis.",
+    image: diagnosisImage,
+    title: "Smart Queue Management",
+    description: "Say goodbye to long waiting times and frustrated patients. Our AI-powered queue management system optimizes patient flow and reduces waiting times by up to 60%.",
     features: [
-      "Pattern recognition",
-      "Early detection",
-      "Risk assessment",
-      "Diagnostic recommendations"
+      "Real-time queue status updates",
+      "Dynamic priority allocation",
+      "Wait time predictions",
+      "Automated patient notifications"
     ]
   },
   {
     icon: (
       <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    ),
+    image: treatmentImage,
+    title: "Resource Optimization",
+    description: "Maximize your hospital's efficiency with intelligent resource allocation. Our system ensures optimal utilization of beds, staff, and medical equipment.",
+    features: [
+      "Bed allocation optimization",
+      "Staff scheduling automation",
+      "Equipment utilization tracking",
+      "Resource conflict prevention"
+    ]
+  },
+  {
+    icon: (
+      <svg className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
     ),
     image: trackingImage,
-    title: "Progress Tracking",
-    description: "Personalized treatment plans are created and continuously monitored for optimal outcomes.",
+    title: "Resource Availability Tracking",
+    description: "Real-time monitoring of hospital resources including beds, wards, and medical equipment.",
     features: [
-      "Customized protocols",
-      "Progress tracking",
-      "Outcome prediction",
-      "Treatment optimization"
+      "Bed availability tracking",
+      "Ward occupancy monitoring",
+      "Equipment utilization",
+      "Resource allocation optimization"
     ]
   }
 ];
