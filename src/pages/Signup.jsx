@@ -660,7 +660,6 @@ const Signup = () => {
 
                 {role === 'hospital' ? (
                   <>
-                    <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label htmlFor="adminName" className="block text-xs font-medium text-gray-300 mb-1">
                           Administrator Name
@@ -676,24 +675,8 @@ const Signup = () => {
                           required
                         />
                       </div>
-                      <div>
-                        <label htmlFor="adminPhone" className="block text-xs font-medium text-gray-300 mb-1">
-                          Administrator Phone
-                        </label>
-                        <input
-                          id="adminPhone"
-                          name="adminPhone"
-                          type="tel"
-                          value={formData.adminPhone}
-                          onChange={handleChange}
-                          className="w-full bg-secondary/50 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary border border-primary/20 text-sm"
-                          placeholder="123-456-7890"
-                  required
-                />
-              </div>
-            </div>
 
-            <div>
+                    <div>
                       <label className="block text-xs font-medium text-gray-300 mb-1">
                         Contact Details
                       </label>
