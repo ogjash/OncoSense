@@ -19,23 +19,28 @@ import Patients from './pages/dashboard/Patients';
 import Treatments from './pages/dashboard/Treatments';
 import Reports from './pages/dashboard/Reports';
 import Settings from './pages/dashboard/Settings';
+import AuthLayout from './layouts/AuthLayout';
+
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <div className="min-h-screen bg-gray-50">
-          <Navbar />
           <Routes>
-            <Route element={<MainLayout />}>
+            <Route element={<><Navbar /><MainLayout /></>}>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<AboutUs />} />
               <Route path="/what-we-do" element={<WhatWeDo />} />
               <Route path="/solutions" element={<Solutions />} />
               <Route path="/insights" element={<Insights />} />
             </Route>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+            </Route>
+
             <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
             <Route path="/reservations" element={<PrivateRoute><Reservations /></PrivateRoute>} />
             <Route path="/doctor-schedule" element={<PrivateRoute><DoctorSchedule /></PrivateRoute>} />
@@ -51,4 +56,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;
