@@ -8,6 +8,7 @@ const Solutions = () => {
   const solutions = [
     {
       title: "Hospital Dashboard",
+      image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80",
       description: "Comprehensive hospital management system that provides real-time insights and control over all hospital operations, enabling efficient decision-making and resource management.",
       benefits: [
         "Real-time bed management & occupancy tracking",
@@ -20,6 +21,7 @@ const Solutions = () => {
     },
     {
       title: "Patient Dashboard",
+      image: "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=800&q=80",
       description: "Patient-centric platform that empowers individuals to manage their healthcare journey, access medical records, and interact with healthcare providers seamlessly.",
       benefits: [
         "Personal health records access",
@@ -66,8 +68,18 @@ const Solutions = () => {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.2 }}
-                  className="bg-secondary-dark/30 p-8 rounded-2xl border border-primary/20 backdrop-blur-xl hover:border-primary/40 transition-colors"
+                  className="bg-secondary-dark/30 p-8 rounded-2xl border border-primary/20 backdrop-blur-xl hover:border-primary/40 transition-colors overflow-hidden"
                 >
+                  <div className="relative mb-6 rounded-xl overflow-hidden">
+                    <motion.img
+                      src={solution.image}
+                      alt={`${solution.title} Preview`}
+                      className="w-full h-48 object-cover rounded-xl"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-secondary-dark/80 to-transparent"></div>
+                  </div>
                   <h2 className="text-2xl font-bold text-white mb-4">
                     {solution.title}
                   </h2>
