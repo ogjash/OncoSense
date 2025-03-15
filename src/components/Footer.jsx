@@ -29,7 +29,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Company Info */}
           <div>
-            <h3 className="text-3xl font-bold text-primary mb-6">HospitalFlow</h3>
+            <h3 className="text-3xl font-bold text-primary mb-6">QMedix</h3>
             <p className="text-gray-400 text-lg">
               Transforming healthcare delivery through intelligent automation and data-driven solutions.
             </p>
@@ -73,8 +73,8 @@ const Footer = () => {
             <ul className="space-y-4 text-gray-400 text-lg">
               <li>123 Healthcare Ave</li>
               <li>Medical District</li>
-              <li>contact@hospitalflow.com</li>
-              <li>+1 (555) 123-4567</li>
+              <li>contact@qmedix.com</li>
+              <li>+91-5551234567</li>
             </ul>
           </div>
 
@@ -139,7 +139,7 @@ const Footer = () => {
         <div className="mt-16">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-lg">
-              © {new Date().getFullYear()} HospitalFlow. All rights reserved.
+              © {new Date().getFullYear()} QMedix. All rights reserved.
             </p>
             <div className="flex space-x-8 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-primary transition-colors text-lg">

@@ -3,15 +3,15 @@ import React from 'react';
 const AboutUs = () => {
   const stats = [
     {
-      value: "100+",
+      value: "50+",
       label: "Hospitals Served"
     },
     {
-      value: "1M+",
+      value: "2500+",
       label: "Patients Managed"
     },
     {
-      value: "60%",
+      value: "80%",
       label: "Reduction in Wait Times"
     },
     {
@@ -53,7 +53,7 @@ const AboutUs = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              About HospitalFlow
+              About QMedix
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
               We&apos;re on a mission to revolutionize hospital operations through intelligent automation and data-driven solutions.

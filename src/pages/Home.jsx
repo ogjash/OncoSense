@@ -94,10 +94,8 @@ const Home = () => {
                   </div>
                 </div>
                 
-                {/* Image/Visual Side */}
                 <div className="flex-1">
                   <div className="relative bg-secondary-dark/30 p-8 rounded-2xl border border-primary/20 overflow-hidden backdrop-blur-xl">
-                    {/* Background blur effect */}
                     <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent backdrop-blur-md"></div>
 
                     <motion.img
