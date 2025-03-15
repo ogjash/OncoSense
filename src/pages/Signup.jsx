@@ -21,7 +21,6 @@ const Signup = () => {
     hospitalAddress: '',
     hospitalPhone: '',
     adminName: '',
-    adminPhone: '',
     contactDetails: {
       phone: '',
     },
@@ -137,7 +136,6 @@ const Signup = () => {
           hospitalAddress: formData.hospitalAddress,
           hospitalPhone: formData.hospitalPhone,
           adminName: formData.adminName,
-          adminPhone: formData.adminPhone,
           contactDetails: formData.contactDetails,
           departments: formData.departments,
         } : {

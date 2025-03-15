@@ -1,28 +1,38 @@
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { AuthContext } from "./UseAuth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../fireabase";
-import { AuthContext } from "./UseAuth";
 
 
 
-// eslint-disable-next-line react/prop-types
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      initializeUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      await initializeUser(user);
     });
 
     return () => unsubscribe();
   }, []);
 
-  const initializeUser = (user) => {
+  const initializeUser = async (user) => {
     if (user) {
-      setCurrentUser(user);
+      // Fetch user details from Firestore
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setCurrentUser({
+          uid: user.uid,
+          email: user.email,
+          ...userData,
+        });
+      } else {
+        throw Error("No such document!");
+      }
       setUserLoggedIn(true);
     } else {
       setCurrentUser(null);
@@ -42,10 +52,23 @@ export const AuthProvider = ({ children }) => {
       email: user.email,
       ...additionalData,
     });
-  
-    setCurrentUser(user);
+
+    // Fetch user details from Firestore
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      setCurrentUser({
+        uid: user.uid,
+        email: user.email,
+        ...userData,
+      });
+    } else {
+      console.error("No such document!");
+    }
+
     setUserLoggedIn(true);
   };
+
   const login = async (email, password) => {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -54,9 +77,13 @@ export const AuthProvider = ({ children }) => {
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists()) {
       const userData = userDoc.data();
-      setCurrentUser({ ...user, ...userData });
+      setCurrentUser({
+        uid: user.uid,
+        email: user.email,
+        ...userData,
+      });
     } else {
-      throw Error("No such document!");
+      console.error("No such document!");
     }
 
     setUserLoggedIn(true);
