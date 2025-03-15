@@ -4,7 +4,7 @@ import StarRing from '../components/StarRing';
 import diagnosisImage from '../assets/images/Ai_Diagnosis.webp';
 import treatmentImage from '../assets/images/Treatment_Planning.webp';
 import trackingImage from '../assets/images/Progress_Tracking.webp';
-
+import React from 'react';
 const Home = () => {
   return (
     <div className="overflow-x-hidden">

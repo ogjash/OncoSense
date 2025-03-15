@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
@@ -20,11 +20,11 @@ import Treatments from './pages/dashboard/Treatments';
 import Reports from './pages/dashboard/Reports';
 import Settings from './pages/dashboard/Settings';
 import AuthLayout from './layouts/AuthLayout';
-
+import React from 'react';
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <AuthProvider>
         <div className="min-h-screen bg-gray-50">
           <Routes>
@@ -48,11 +48,12 @@ function App() {
             <Route path="/treatments" element={<PrivateRoute><Treatments /></PrivateRoute>} />
             <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
             <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+            
           </Routes>
           <ToastContainer />
         </div>
       </AuthProvider>
-    </Router>
+    </BrowserRouter>
   );
 }
 

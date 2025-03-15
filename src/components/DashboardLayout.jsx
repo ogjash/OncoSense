@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-
+import { useAuth } from '../context/UseAuth';
+import React from 'react';
+// eslint-disable-next-line react/prop-types
 const DashboardLayout = ({ children }) => {
   const location = useLocation();
   const { user } = useAuth();

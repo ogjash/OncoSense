@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import CircuitLine from '../components/CircuitLine';
-import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import { useState } from 'react';
+import React,{ useState } from 'react';
+import { useAuth } from '../context/UseAuth';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -121,7 +121,7 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+  
     if (formData.password !== formData.confirmPassword) {
       toast.error('Passwords do not match');
       return;
@@ -152,10 +152,10 @@ const Signup = () => {
           address: formData.address,
         })
       };
-
+  
       await signup(userData);
       toast.success('Account created successfully!');
-      navigate(role === 'hospital' ? '/dashboard' : '/patient-dashboard');
+      navigate(role === 'hospital' ? '/dashboard' : '/patients');
     } catch (error) {
       toast.error(error.message);
     }

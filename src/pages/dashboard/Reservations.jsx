@@ -1,5 +1,5 @@
 import DashboardLayout from '../../components/DashboardLayout';
-
+import React from 'react';
 const Reservations = () => {
   return (
     <DashboardLayout>

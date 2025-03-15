@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-
+import React from 'react';
 const AboutUs = () => {
   const stats = [
     {
@@ -56,7 +56,7 @@ const AboutUs = () => {
               About HospitalFlow
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              We're on a mission to revolutionize hospital operations through intelligent automation and data-driven solutions.
+              We&apos;re on a mission to revolutionize hospital operations through intelligent automation and data-driven solutions.
             </p>
           </motion.div>
         </div>

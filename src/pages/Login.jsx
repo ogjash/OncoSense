@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import CircuitLine from '../components/CircuitLine';
-import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
+import React from 'react';
+import { useAuth } from '../context/UseAuth';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login,currentUser } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -21,12 +22,22 @@ const Login = () => {
     }));
   };
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await login(formData.email, formData.password);
       toast.success('Logged in successfully!');
-      // The navigation will be handled by the AuthContext based on user role
+
+      
+
+      if (currentUser.role === 'hospital') {
+        navigate('/dashboard');
+      } else if (currentUser.role === 'patient') {
+        navigate('/patients');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       toast.error(error.message);
     }
@@ -43,7 +54,7 @@ const Login = () => {
       >
         {/* Card Background */}
         <div className="absolute inset-0 bg-secondary/40 backdrop-blur-xl rounded-2xl border border-primary/20 shadow-lg shadow-primary/10"></div>
-        
+
         {/* Content */}
         <div className="relative p-8">
           {/* Back Button */}
@@ -136,11 +147,11 @@ const Login = () => {
 
           {/* Simplified account creation section */}
           <p className="mt-6 text-center text-gray-400">
-Don't have an account?{' '}
-              <Link to="/signup" className="text-primary hover:text-primary-dark transition-colors font-medium">
+            Don&apos;t have an account?{' '}
+            <Link to="/signup" className="text-primary hover:text-primary-dark transition-colors font-medium">
               Sign up
-              </Link>
-            </p>
+            </Link>
+          </p>
         </div>
       </motion.div>
     </div>
