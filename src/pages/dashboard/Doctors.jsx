@@ -284,15 +284,12 @@ const Doctors = () => {
     setEndTime('17:00');
     setFormErrors({});
     
-    // Close modal
     toggleAddDoctorModal();
   };
 
   return (
     <DashboardLayout>
-      {/* Reduced top spacing from space-y-8 to space-y-4 */}
       <div className="space-y-4">
-        {/* Header with Add Doctor button and counter badge only */}
         <div className="flex justify-end items-center">
           <div className="flex items-center">
             <motion.span 
