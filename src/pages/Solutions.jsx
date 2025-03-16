@@ -1,8 +1,7 @@
 import { BrowserRouter as Router } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import React from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+
 
 const Solutions = () => {
   const solutions = [
