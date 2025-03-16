@@ -51,7 +51,7 @@ function App() {
               <Route path="/treatments" element={<PrivateRoute><Treatments /></PrivateRoute>} />
               <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
               <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-              <Route path="/appointment" element={<PrivateRoute><Appointment /></PrivateRoute>} />
+              <Route path="/appointment/:docId" element={<PrivateRoute><Appointment /></PrivateRoute>} />
             </Routes>
             <ToastContainer />
           </div>

@@ -5,6 +5,8 @@ export const AppContext = createContext();
 
 const AppContextProvider = ({ children }) => {
     const currencySymbol = '₹';
+
+    console.log(doctors);
     const value = { doctors, currencySymbol };
 
     return (

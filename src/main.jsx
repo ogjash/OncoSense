@@ -5,10 +5,13 @@ import './index.css';
 import { AuthProvider } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AppContextProvider from './context/AppContext';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-    <AuthProvider>
-      <ToastContainer/>
-      <App />
-    </AuthProvider>
+  <AppContextProvider>
+      <AuthProvider>
+        <ToastContainer/>
+        <App />
+      </AuthProvider>
+  </AppContextProvider>
 );

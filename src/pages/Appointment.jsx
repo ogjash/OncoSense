@@ -68,7 +68,7 @@ const Appointment=()=>{
         getAvailableSlots()
     },[docInfo])
 
-    // if (!docInfo) return <p>Loading...</p>;
+    if (!docInfo) return <p>Loading...</p>;
     return docInfo && (
         <div className='flex flex-col sm:flex-row gap-4'>
             <div>
