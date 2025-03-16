@@ -12,9 +12,11 @@ import Solutions from "./pages/Solutions";
 import Insights from "./pages/Insights";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+
+// Hospital dashboard pages
 import Dashboard from "./pages/dashboard/Dashboard";
 import Reservations from "./pages/dashboard/Reservations";
-import DoctorSchedule from "./pages/dashboard/DoctorSchedule";
+import Doctors from "./pages/dashboard/Doctors";
 import Patients from "./pages/dashboard/Patients";
 import Treatments from "./pages/dashboard/Treatments";
 import Reports from "./pages/dashboard/Reports";
@@ -54,7 +56,7 @@ function App() {
               <Route element={<RoleBasedRoutes />}>
                 {/* Hospital routes */}
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/doctor-schedule" element={<DoctorSchedule />} />
+                <Route path="/doctors" element={<Doctors />} />
                 <Route path="/patients" element={<Patients />} />
                 <Route path="/treatments" element={<Treatments />} />
                 <Route path="/reports" element={<Reports />} />

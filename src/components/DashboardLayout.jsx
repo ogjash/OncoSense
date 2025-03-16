@@ -34,7 +34,7 @@ const DashboardLayout = ({ children }) => {
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
     { path: '/reservations', label: 'Reservations', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
-    { path: '/doctor-schedule', label: 'Doctor Schedule', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
+    { path: '/doctors', label: 'Doctors', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
     { path: '/patients', label: 'Patients', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
     { path: '/treatments', label: 'Treatments', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
     { path: '/staff', label: 'Staff List', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' }
@@ -74,7 +74,7 @@ const DashboardLayout = ({ children }) => {
             
             {/* Logo for mobile */}
             <Link to="/dashboard" className="flex items-center ml-2">
-              <span className="text-xl font-bold text-primary">OncoSense</span>
+              <span className="text-xl font-bold text-primary">QMatrix</span>
             </Link>
           </div>
 
@@ -88,7 +88,7 @@ const DashboardLayout = ({ children }) => {
             <div className="relative w-full">
               <input
                 type="text"
-                className="w-full bg-gray-100/70 backdrop-blur-sm rounded-xl border-0 focus:ring-2 focus:ring-purple-500 py-3 pl-12 pr-4 text-gray-700 shadow-sm"
+                className="w-full bg-gray-100/70 backdrop-blur-sm rounded-xl border-0 focus:ring-2 focus:ring-teal-500 py-3 pl-12 pr-4 text-gray-700 shadow-sm"
                 placeholder="Search Anything"
               />
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -111,7 +111,7 @@ const DashboardLayout = ({ children }) => {
             <div className="relative">
               <button 
                 onClick={toggleNotifications}
-                className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
+                className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-colors"
               >
                 <span className="sr-only">View notifications</span>
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,10 +119,8 @@ const DashboardLayout = ({ children }) => {
                 </svg>
                 <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>
               </button>
-              {/* ... existing notifications dropdown ... */}
             </div>
 
-            {/* Vertical divider - Ultra subtle - Hide on mobile */}
             <div className="h-8 w-px bg-gray-100/30 hidden lg:block"></div>
 
             <div className="relative">
@@ -130,7 +128,7 @@ const DashboardLayout = ({ children }) => {
                 onClick={toggleProfileMenu}
                 className="flex items-center space-x-3 hover:bg-gray-100 p-1 lg:p-2 rounded-lg transition-colors group"
               >
-                <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-semibold text-lg ring-2 ring-purple-200 group-hover:ring-purple-300 transition-all">
+                <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center text-white font-semibold text-lg ring-2 ring-teal-200 group-hover:ring-teal-300 transition-all">
                   {currentUser?.email?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
                 <div className="hidden lg:block text-left">
@@ -145,13 +143,11 @@ const DashboardLayout = ({ children }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              {/* ... existing profile dropdown ... */}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile Navigation Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
@@ -194,12 +190,12 @@ const DashboardLayout = ({ children }) => {
 
               {/* Hospital Name Card */}
               <div className="px-4 mb-6">
-                <div className="bg-purple-50 p-3 rounded-lg border border-purple-100">
-                  <h3 className="text-sm font-medium text-purple-900">
+                <div className="bg-gradient-to-r from-red-50 to-orange-50 p-3 rounded-lg border border-red-100">
+                  <h3 className="text-sm font-medium text-orange-900">
                     {currentUser?.role === 'hospital' ? currentUser.hospitalName : currentUser?.patientName || 'User'}
                   </h3>
                   {currentUser?.role === 'hospital' && (
-                    <p className="text-xs text-purple-700 mt-1">
+                    <p className="text-xs text-orange-700 mt-1">
                       {currentUser.adminName ? `Admin: ${currentUser.adminName}` : 'Hospital Admin'}
                     </p>
                   )}
@@ -214,13 +210,13 @@ const DashboardLayout = ({ children }) => {
                     to={item.path}
                     className={`flex items-center px-4 py-3.5 text-base font-medium rounded-lg transition-colors ${
                       location.pathname === item.path
-                        ? 'bg-purple-50 text-purple-700'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-purple-700'
+                        ? 'bg-gradient-to-r from-teal-50 to-blue-50 text-teal-700'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-teal-700'
                     }`}
                   >
                     <svg
                       className={`w-6 h-6 mr-4 ${
-                        location.pathname === item.path ? 'text-purple-700' : 'text-gray-400'
+                        location.pathname === item.path ? 'text-teal-600' : 'text-gray-400'
                       }`}
                       fill="none"
                       stroke="currentColor"

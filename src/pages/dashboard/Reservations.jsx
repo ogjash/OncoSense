@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { format, addDays, addHours, parseISO } from 'date-fns';
-import { motion } from 'framer-motion'; // Add this import for animations
+import { motion, AnimatePresence } from 'framer-motion'; // Updated import for animations
 
 const Reservations = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -18,6 +18,9 @@ const Reservations = () => {
     purpose: '',
     progress: 'Confirmed'
   });
+  const [formErrors, setFormErrors] = useState({});
+  const [draggedAppointment, setDraggedAppointment] = useState(null);
+  const [dragTarget, setDragTarget] = useState(null);
   
   // Mock data for demonstration
   const mockDoctors = ['Dr. Smith', 'Dr. Johnson', 'Dr. Williams', 'Dr. Brown'];
@@ -108,7 +111,22 @@ const Reservations = () => {
     return appointments.find(app => app.doctor === doctor && app.time === formattedHour);
   };
 
-  const handleAddAppointment = () => {
+  const handleAddAppointment = (e) => {
+    e.preventDefault();
+    
+    // Validate form
+    const errors = {};
+    if (!newAppointment.patientName.trim()) errors.patientName = 'Patient name is required';
+    if (!newAppointment.doctor) errors.doctor = 'Doctor is required';
+    if (!newAppointment.time) errors.time = 'Appointment time is required';
+    if (!newAppointment.purpose.trim()) errors.purpose = 'Purpose is required';
+    
+    // If there are errors, show them and don't proceed
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
     const newId = appointments.length > 0 ? Math.max(...appointments.map(apt => apt.id)) + 1 : 1;
     
     const appointmentToAdd = {
@@ -129,8 +147,51 @@ const Reservations = () => {
       purpose: '',
       progress: 'Confirmed'
     });
+    setFormErrors({});
   };
   
+  // Drag and drop handlers
+  const handleDragStart = (appointment) => {
+    setDraggedAppointment(appointment);
+  };
+
+  const handleDragOver = (doctor, timeSlot) => {
+    const hour = timeSlot.getHours();
+    const formattedHour = `${hour}:00`;
+    setDragTarget({doctor, time: formattedHour, dateTime: new Date(currentDate).setHours(hour, 0, 0, 0)});
+  };
+
+  const handleDrop = () => {
+    if (draggedAppointment && dragTarget) {
+      // Check if target slot is already occupied
+      const isSlotOccupied = appointments.some(app => 
+        app.id !== draggedAppointment.id && 
+        app.doctor === dragTarget.doctor && 
+        app.time === dragTarget.time
+      );
+
+      if (!isSlotOccupied) {
+        const updatedAppointments = appointments.map(app => {
+          if (app.id === draggedAppointment.id) {
+            return {
+              ...app,
+              doctor: dragTarget.doctor,
+              time: dragTarget.time,
+              dateTime: dragTarget.dateTime
+            };
+          }
+          return app;
+        });
+        
+        setAppointments(updatedAppointments);
+      }
+    }
+    
+    // Reset drag state
+    setDraggedAppointment(null);
+    setDragTarget(null);
+  };
+
   const getWeekDates = () => {
     const dates = [];
     const startDate = new Date(currentDate);
@@ -333,16 +394,42 @@ const Reservations = () => {
                         viewMode === 'day' ?
                           mockDoctors.map(doctor => {
                             const appointment = hasAppointment(doctor, timeSlot);
+                            const hour = timeSlot.getHours();
+                            const formattedHour = `${hour}:00`;
+                            const isDropTarget = dragTarget && dragTarget.doctor === doctor && dragTarget.time === formattedHour;
+                            
                             return (
-                              <td key={`${doctor}-${index}`} className="p-2 border-r h-24 relative">
+                              <td 
+                                key={`${doctor}-${index}`} 
+                                className={`p-2 border-r h-24 relative transition-colors ${isDropTarget ? 'bg-purple-50' : ''}`}
+                                onDragOver={(e) => {
+                                  e.preventDefault();
+                                  handleDragOver(doctor, timeSlot);
+                                }}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  handleDrop();
+                                }}
+                              >
                                 {appointment ? (
-                                  <div className={`absolute inset-1 rounded-lg p-2 ${
-                                    appointment.progress === 'Confirmed' ? 'bg-green-100 border-l-4 border-green-500 text-green-800' :
-                                    appointment.progress === 'In Progress' ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-800' :
-                                    'bg-amber-100 border-l-4 border-amber-500 text-amber-800'
-                                  }`}
+                                  <motion.div 
+                                    draggable
+                                    onDragStart={() => handleDragStart(appointment)}
+                                    whileHover={{ scale: 1.02 }}
+                                    className={`absolute inset-1 rounded-lg p-2 cursor-move ${
+                                      appointment.progress === 'Confirmed' ? 'bg-green-100 border-l-4 border-green-500 text-green-800' :
+                                      appointment.progress === 'In Progress' ? 'bg-blue-100 border-l-4 border-blue-500 text-blue-800' :
+                                      'bg-amber-100 border-l-4 border-amber-500 text-amber-800'
+                                    }`}
                                   >
-                                    <p className="font-medium">{appointment.patientName}</p>
+                                    <div className="flex justify-between items-start">
+                                      <p className="font-medium">{appointment.patientName}</p>
+                                      <div className="cursor-pointer p-1 rounded hover:bg-white/50" title="Drag to reschedule">
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 013 0m-3-3.5v3m0 4.5v3" />
+                                        </svg>
+                                      </div>
+                                    </div>
                                     <p className="text-sm">{appointment.time}</p>
                                     <span className="text-xs px-2 py-1 bg-white rounded-full mt-1 inline-block shadow-sm text-gray-700">
                                       {appointment.purpose}
@@ -355,10 +442,10 @@ const Reservations = () => {
                                     }}>
                                       {appointment.progress}
                                     </span>
-                                  </div>
+                                  </motion.div>
                                 ) : (
                                   <div 
-                                    className="w-full h-full flex items-center justify-center text-gray-400 hover:bg-gray-50 cursor-pointer"
+                                    className="w-full h-full flex items-center justify-center text-gray-400 hover:bg-gray-50 cursor-pointer group"
                                     onClick={() => {
                                       setNewAppointment({
                                         ...newAppointment,
@@ -368,9 +455,15 @@ const Reservations = () => {
                                       setShowModal(true);
                                     }}
                                   >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
+                                    <motion.div 
+                                      whileHover={{ scale: 1.2, rotate: 90 }}
+                                      transition={{ duration: 0.2 }}
+                                      className="opacity-50 group-hover:opacity-100"
+                                    >
+                                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                      </svg>
+                                    </motion.div>
                                   </div>
                                 )}
                               </td>
@@ -431,122 +524,197 @@ const Reservations = () => {
             </div>
           </div>
         </motion.div>
-        
-        {/* Add New Reservation Button */}
-        <motion.div 
-          className="flex justify-end"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-          whileHover={{ scale: 1.05 }}
-        >
-          <button 
-            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-            onClick={() => setShowModal(true)}
-          >
-            Add New Reservation
-          </button>
-        </motion.div>
       </motion.div>
       
-      {/* Modal for adding new appointment */}
-      {showModal && (
-        <motion.div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
+      {/* Modal for adding new appointment - Styled like Doctor Modal */}
+      <AnimatePresence>
+        {showModal && (
           <motion.div 
-            className="bg-white rounded-xl p-6 w-full max-w-md"
-            initial={{ scale: 0.9, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowModal(false);
+            }}
           >
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Add New Appointment</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Patient Name</label>
-                <input 
-                  type="text" 
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-800"
-                  value={newAppointment.patientName}
-                  onChange={e => setNewAppointment({...newAppointment, patientName: e.target.value})}
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Doctor</label>
-                <select 
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-800"
-                  value={newAppointment.doctor}
-                  onChange={e => setNewAppointment({...newAppointment, doctor: e.target.value})}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
+              className="bg-white rounded-xl shadow-xl w-full max-w-md p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-gray-900 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">Add New Appointment</h2>
+                <motion.button 
+                  onClick={() => setShowModal(false)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="p-1 rounded-full bg-gray-100 text-gray-500 hover:text-gray-700"
                 >
-                  <option value="">Select Doctor</option>
-                  {mockDoctors.map(doctor => (
-                    <option key={doctor} value={doctor}>{doctor}</option>
-                  ))}
-                </select>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </motion.button>
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
-                <select 
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-800"
-                  value={newAppointment.time}
-                  onChange={e => setNewAppointment({...newAppointment, time: e.target.value})}
-                >
-                  <option value="">Select Time</option>
-                  {timeSlots.map((timeSlot, index) => (
-                    <option key={index} value={`${timeSlot.getHours()}:00`}>
-                      {formatTime(timeSlot)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Purpose</label>
-                <input 
-                  type="text" 
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-800"
-                  value={newAppointment.purpose}
-                  onChange={e => setNewAppointment({...newAppointment, purpose: e.target.value})}
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                <select 
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-gray-800"
-                  value={newAppointment.progress}
-                  onChange={e => setNewAppointment({...newAppointment, progress: e.target.value})}
-                >
-                  <option value="Confirmed">Confirmed</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Waiting">Waiting</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="flex justify-end space-x-3 mt-6">
-              <button 
-                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
-              <button 
-                className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
-                onClick={handleAddAppointment}
-                disabled={!newAppointment.patientName || !newAppointment.doctor || !newAppointment.time}
-              >
-                Save Appointment
-              </button>
-            </div>
+              <form className="space-y-4" onSubmit={handleAddAppointment}>
+                {/* Patient Name */}
+                <div>
+                  <label htmlFor="patient-name" className="block text-sm font-medium text-gray-700">
+                    Patient Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="patient-name"
+                    className={`mt-1 block w-full rounded-md border-0 shadow-sm bg-gray-50 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-900 px-3 py-2 ${
+                      formErrors.patientName ? 'border-red-500 ring-1 ring-red-500' : ''
+                    }`}
+                    placeholder="John Doe"
+                    value={newAppointment.patientName}
+                    onChange={(e) => setNewAppointment({...newAppointment, patientName: e.target.value})}
+                    required
+                  />
+                  {formErrors.patientName && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.patientName}</p>
+                  )}
+                </div>
+
+                {/* Doctor field */}
+                <div>
+                  <label htmlFor="appointment-doctor" className="block text-sm font-medium text-gray-700">
+                    Doctor *
+                  </label>
+                  <select
+                    id="appointment-doctor"
+                    className={`mt-1 block w-full rounded-md border-0 shadow-sm bg-gray-50 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-900 px-3 py-2 ${
+                      formErrors.doctor ? 'border-red-500 ring-1 ring-red-500' : ''
+                    }`}
+                    value={newAppointment.doctor}
+                    onChange={(e) => setNewAppointment({...newAppointment, doctor: e.target.value})}
+                    required
+                  >
+                    <option value="" disabled>Select doctor</option>
+                    {mockDoctors.map((doctor) => (
+                      <option key={doctor} value={doctor}>{doctor}</option>
+                    ))}
+                  </select>
+                  {formErrors.doctor && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.doctor}</p>
+                  )}
+                </div>
+
+                {/* Time field */}
+                <div>
+                  <label htmlFor="appointment-time" className="block text-sm font-medium text-gray-700">
+                    Time *
+                  </label>
+                  <select
+                    id="appointment-time"
+                    className={`mt-1 block w-full rounded-md border-0 shadow-sm bg-gray-50 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-900 px-3 py-2 ${
+                      formErrors.time ? 'border-red-500 ring-1 ring-red-500' : ''
+                    }`}
+                    value={newAppointment.time}
+                    onChange={(e) => setNewAppointment({...newAppointment, time: e.target.value})}
+                    required
+                  >
+                    <option value="" disabled>Select time</option>
+                    {timeSlots
+                      .filter(slot => !isBreakTime(slot))
+                      .map((timeSlot, index) => (
+                        <option key={index} value={`${timeSlot.getHours()}:00`}>
+                          {formatTime(timeSlot)}
+                        </option>
+                      ))
+                    }
+                  </select>
+                  {formErrors.time && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.time}</p>
+                  )}
+                </div>
+
+                {/* Purpose field */}
+                <div>
+                  <label htmlFor="appointment-purpose" className="block text-sm font-medium text-gray-700">
+                    Purpose *
+                  </label>
+                  <input
+                    type="text"
+                    id="appointment-purpose"
+                    className={`mt-1 block w-full rounded-md border-0 shadow-sm bg-gray-50 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-900 px-3 py-2 ${
+                      formErrors.purpose ? 'border-red-500 ring-1 ring-red-500' : ''
+                    }`}
+                    placeholder="Consultation, Follow-up, etc."
+                    value={newAppointment.purpose}
+                    onChange={(e) => setNewAppointment({...newAppointment, purpose: e.target.value})}
+                    required
+                  />
+                  {formErrors.purpose && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.purpose}</p>
+                  )}
+                </div>
+
+                {/* Status field */}
+                <div>
+                  <label htmlFor="appointment-status" className="block text-sm font-medium text-gray-700">
+                    Status
+                  </label>
+                  <select
+                    id="appointment-status"
+                    className="mt-1 block w-full rounded-md border-0 shadow-sm bg-gray-50 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-900 px-3 py-2"
+                    value={newAppointment.progress}
+                    onChange={(e) => setNewAppointment({...newAppointment, progress: e.target.value})}
+                  >
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Waiting">Waiting</option>
+                  </select>
+                </div>
+
+                {/* Submit button */}
+                <div className="flex justify-end space-x-3 pt-4 mt-4 border-t">
+                  <motion.button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all"
+                  >
+                    Cancel
+                  </motion.button>
+                  <motion.button
+                    type="submit"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg shadow-md hover:shadow-lg transition-all"
+                  >
+                    Add Appointment
+                  </motion.button>
+                </div>
+              </form>
+            </motion.div>
           </motion.div>
-        </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Dragging indicator - shows a floating element while dragging */}
+      {draggedAppointment && (
+        <div 
+          className="fixed z-50 pointer-events-none"
+          style={{ 
+            left: `${window.event?.clientX + 15}px`, 
+            top: `${window.event?.clientY + 15}px`,
+            transform: 'translate(0, 0)'
+          }}
+        >
+          <div className="bg-white rounded-lg p-3 shadow-xl border-2 border-purple-500 opacity-90">
+            <div className="text-sm font-medium">{draggedAppointment.patientName}</div>
+            <div className="text-xs text-gray-500">{draggedAppointment.time} • {draggedAppointment.purpose}</div>
+          </div>
+        </div>
       )}
     </DashboardLayout>
   );
