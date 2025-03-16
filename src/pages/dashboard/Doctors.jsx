@@ -1,7 +1,7 @@
 import DashboardLayout from '../../components/DashboardLayout';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { doc, updateDoc, arrayUnion, getDocs, collection } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, getDocs, collection, query, where } from "firebase/firestore";
 import { db } from "../../fireabase";
 import { useAuth } from "../../context/UseAuth";
 import { toast } from 'react-toastify';
@@ -19,96 +19,236 @@ const Doctors = () => {
   const [selectedDays, setSelectedDays] = useState([]);
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('17:00');
+  const [showCustomDepartment, setShowCustomDepartment] = useState(false);
+  const [customDepartment, setCustomDepartment] = useState('');
+  const [showDeptFilter, setShowDeptFilter] = useState(false);
   
-  // Add new state for new doctor
+  const deptFilterRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (deptFilterRef.current && !deptFilterRef.current.contains(event.target)) {
+        setShowDeptFilter(false);
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [deptFilterRef]);
+  
   const [newDoctor, setNewDoctor] = useState({
     name: '',
     department: '',
     phone: '',
     email: '',
-    photo: 'https://randomuser.me/api/portraits/lego/1.jpg', // Default placeholder avatar
+    photo: "https://randomuser.me/api/portraits/lego/1.jpg",
     availability: true
   });
+
   const [formErrors, setFormErrors] = useState({});
-
-  // Sample doctor data - In a real app, this would come from an API
-
+  
+  const [currentTime, setCurrentTime] = useState(new Date());
   
   useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    
+    return () => clearInterval(timer);
+  }, []);
   
+  // Function to check if doctor is currently available based on time
+  const isDoctorAvailable = useCallback((doctor) => {
+    if (!doctor.availability || !doctor.timings || !doctor.workingDays) {
+      return false;
+    }
+    
+    // Parse the doctor's working days
+    const doctorDays = doctor.workingDays.split(', ').map(day => day.toLowerCase());
+    
+    const currentDayShort = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(currentTime).substring(0, 3);
+    
+    // Check if today is in doctor's working days
+    const isWorkingDay = doctorDays.some(day => 
+      day.toLowerCase() === currentDayShort.toLowerCase()
+    );
+    
+    if (!isWorkingDay) return false;
+    
+    const [startTimeStr, endTimeStr] = doctor.timings.split(' - ');
+    
+    if (!startTimeStr || !endTimeStr) return false;
+    
+    const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+    
+    const startTimeParts = startTimeStr.match(/(\d+):(\d+)\s*([AP]M)/i);
+    if (!startTimeParts) return false;
+    
+    let startHour = parseInt(startTimeParts[1]);
+    const startMinute = parseInt(startTimeParts[2]);
+    const startAmPm = startTimeParts[3].toUpperCase();
+    
+    if (startAmPm === 'PM' && startHour < 12) startHour += 12;
+    if (startAmPm === 'AM' && startHour === 12) startHour = 0;
+    
+    const endTimeParts = endTimeStr.match(/(\d+):(\d+)\s*([AP]M)/i);
+    if (!endTimeParts) return false;
+    
+    let endHour = parseInt(endTimeParts[1]);
+    const endMinute = parseInt(endTimeParts[2]);
+    const endAmPm = endTimeParts[3].toUpperCase();
+    
+    if (endAmPm === 'PM' && endHour < 12) endHour += 12;
+    if (endAmPm === 'AM' && endHour === 12) endHour = 0;
+    
+    const startTimeMinutes = startHour * 60 + startMinute;
+    const endTimeMinutes = endHour * 60 + endMinute;
+    
+    // Check if current time is within doctor's working hours
+    return currentMinutes >= startTimeMinutes && currentMinutes <= endTimeMinutes;
+  }, [currentTime]);
+  
+  useEffect(() => {
     const fetchDoctors = async () => {
+      let isMounted = true;
+      
       try {
+        setLoading(true);
         const querySnapshot = await getDocs(collection(db, "users"));
         const doctorsList = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.doctors) {
-            doctorsList.push(...data.doctors);
+        const allDepartments = new Set();
+        
+        // Process all users
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          
+          // Collect doctors from the data
+          if (data.doctors && Array.isArray(data.doctors)) {
+            const doctorsWithIds = data.doctors.map(doctor => ({
+              ...doctor,
+              id: doctor.id || Date.now() + Math.random().toString(36).substring(2, 9),
+              currentlyAvailable: false
+            }));
+            
+            doctorsList.push(...doctorsWithIds);
+            
+            // Extract unique departments
+            data.doctors.forEach(doctor => {
+              if (doctor.department) allDepartments.add(doctor.department);
+            });
+          }
+          
+          // Collect departments from user data
+          if (data.departments && Array.isArray(data.departments)) {
+            data.departments.forEach(dept => {
+              if (dept) allDepartments.add(dept);
+            });
           }
         });
-        setDoctors(doctorsList);
-        setFilteredDoctors(doctorsList);
+        
+        if (!isMounted) return;
 
-        // Extract unique departments
-        const uniqueDepartments = [...new Set(doctorsList.map(doctor => doctor.department))];
-        setDepartments(uniqueDepartments);
-
+        const doctorsWithAvailability = doctorsList.map(doctor => ({
+          ...doctor,
+          currentlyAvailable: isDoctorAvailable(doctor)
+        }));
+        
+        setDoctors(doctorsWithAvailability);
+        setFilteredDoctors(sortData(doctorsWithAvailability, sortConfig));
+        
+        const departmentsArray = Array.from(allDepartments)
+          .filter(dept => dept && dept.trim() !== '')
+          .sort();
+          
+        setDepartments(departmentsArray);
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching doctors: ", error);
-        toast.error("Error fetching doctors");
+        console.error("Error fetching doctors and departments: ", error);
+        if (isMounted) {
+          toast.error("Error loading data");
+          setLoading(false);
+        }
       }
+      
+      return () => {
+        isMounted = false;
+      };
     };
 
     fetchDoctors();
-  }, []);
+  }, [isDoctorAvailable, sortConfig]);
 
-  // Handle department filter
-  const handleDepartmentFilter = (department) => {
-    setSelectedDepartment(department);
-    
-    if (department === 'All') {
-      setFilteredDoctors(sortData(doctors, sortConfig));
-    } else {
-      const filtered = doctors.filter(doctor => doctor.department === department);
-      setFilteredDoctors(sortData(filtered, sortConfig));
+const handleDepartmentFilter = (department) => {
+  setShowDeptFilter(false);
+  setSelectedDepartment(department);
+  setLoading(true);
+  
+  setTimeout(() => {
+    try {
+      if (department === 'All') {
+        setFilteredDoctors(sortData([...doctors], sortConfig));
+      } else {
+        const filtered = doctors.filter(doctor => 
+          doctor.department && 
+          doctor.department.toLowerCase() === department.toLowerCase()
+        );
+        
+        if (filtered.length > 0) {
+          console.log(`Found ${filtered.length} doctors in department ${department}`);
+          setFilteredDoctors(sortData(filtered, sortConfig));
+        } else {
+          console.log(`No doctors found in department ${department}`);
+          setFilteredDoctors([]);
+        }
+      }
+      
+      setLoading(false);
+    } catch (error) {
+      console.error("Error filtering departments:", error);
+      setFilteredDoctors([...doctors]);
+      setLoading(false);
+      toast.error("Error filtering departments");
     }
-  };
+  }, 10);
+};
 
-  // Handle sorting
   const requestSort = (key) => {
     let direction = 'ascending';
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
     }
-    setSortConfig({ key, direction });
     
-    // Apply sort to current filtered data
-    const sortedData = sortData(filteredDoctors, { key, direction });
-    setFilteredDoctors(sortedData);
+    const newConfig = { key, direction };
+    setSortConfig(newConfig);
+    
+    const sortedDoctors = sortData([...filteredDoctors], newConfig);
+    const uniqueDoctors = Array.from(new Map(sortedDoctors.map(doctor => [doctor.id, doctor])).values());
+    setFilteredDoctors(uniqueDoctors);
   };
 
-  // Sorting function
   const sortData = (data, config) => {
-    if (!config.key) return data;
+    if (!config.key || !Array.isArray(data)) return data;
     
     return [...data].sort((a, b) => {
-      if (a[config.key] < b[config.key]) {
+      const valueA = (a[config.key] || '').toString().toLowerCase();
+      const valueB = (b[config.key] || '').toString().toLowerCase();
+      
+      if (valueA < valueB) {
         return config.direction === 'ascending' ? -1 : 1;
       }
-      if (a[config.key] > b[config.key]) {
+      if (valueA > valueB) {
         return config.direction === 'ascending' ? 1 : -1;
       }
-      return 0;
+      return a.id - b.id;
     });
   };
 
-  // Toggle add doctor modal
   const toggleAddDoctorModal = () => {
     setShowAddDoctorModal(!showAddDoctorModal);
   };
 
-  // Table row animation variants
   const tableRowVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i) => ({
@@ -123,7 +263,6 @@ const Doctors = () => {
     exit: { opacity: 0, y: -10, transition: { duration: 0.2 } }
   };
 
-  // Button hover animation variants
   const buttonVariants = {
     hover: { 
       scale: 1.05,
@@ -155,44 +294,80 @@ const Doctors = () => {
     }
   };
 
-  // New function to handle form field changes
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    // Convert form field ids to object keys
     const fieldMap = {
       'doctor-name': 'name',
       'doctor-department': 'department',
       'doctor-phone': 'phone',
-      'doctor-email': 'email'
+      'doctor-email': 'email',
+      'custom-department': 'customDepartment'
     };
     
     const field = fieldMap[id] || id;
     
-    setNewDoctor({
-      ...newDoctor,
-      [field]: value
-    });
+    if (id === 'doctor-department') {
+      if (value === 'custom') {
+        setShowCustomDepartment(true);
+        setNewDoctor({
+          ...newDoctor,
+          department: ''
+        });
+      } else {
+        setShowCustomDepartment(false);
+        setNewDoctor({
+          ...newDoctor,
+          department: value
+        });
+      }
+    } else if (id === 'custom-department') {
+      setCustomDepartment(value);
+      setNewDoctor({
+        ...newDoctor,
+        department: value
+      });
+    } else if (id === 'doctor-phone') {
+      const numericValue = value.replace(/\D/g, '').substring(0, 10);
+      setNewDoctor({
+        ...newDoctor,
+        phone: numericValue
+      });
+    } else {
+      setNewDoctor({
+        ...newDoctor,
+        [field]: value
+      });
+    }
   };
 
-  // New function to handle doctor form submission
+  // Modified Add Doctor form submission
   const handleAddDoctor = async (e) => {
     e.preventDefault();
     
-    // Validate form
     const errors = {};
     if (!newDoctor.name.trim()) errors.name = 'Name is required';
-    if (!newDoctor.department) errors.department = 'Department is required';
-    if (!newDoctor.phone.trim()) errors.phone = 'Phone number is required';
+    
+    if (showCustomDepartment) {
+      if (!customDepartment.trim()) errors.department = 'Department name is required';
+    } else if (!newDoctor.department) {
+      errors.department = 'Department is required';
+    }
+    
+    const phoneRegex = /^\d{10}$/;
+    if (!newDoctor.phone.trim()) {
+      errors.phone = 'Phone number is required';
+    } else if (!phoneRegex.test(newDoctor.phone)) {
+      errors.phone = 'Phone number must be exactly 10 digits';
+    }
+    
     if (!newDoctor.email.trim()) errors.email = 'Email is required';
     if (selectedDays.length === 0) errors.days = 'At least one working day is required';
     
-    // If there are errors, show them and don't proceed
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
     
-    // Format working days for display
     const daysMap = {
       mon: 'Monday',
       tue: 'Tuesday',
@@ -209,11 +384,11 @@ const Doctors = () => {
     
     // Create new doctor object
     const newDoctorObj = {
-      id: doctors.length + 1, // Simple ID generation
-      name: newDoctor.name,
-      department: newDoctor.department,
+      id: Date.now(),
+      name: newDoctor.name.trim(),
+      department: newDoctor.department.trim(),
       phone: newDoctor.phone,
-      email: newDoctor.email,
+      email: newDoctor.email.trim(),
       photo: newDoctor.photo,
       availability: true,
       workingDays: workingDaysFormatted,
@@ -224,52 +399,84 @@ const Doctors = () => {
     const updatedDoctors = [...doctors, newDoctorObj];
     setDoctors(updatedDoctors);
     
-    // Update filtered list if the new doctor matches current filter
-    if (selectedDepartment === 'All' || selectedDepartment === newDoctorObj.department) {
+    if (selectedDepartment === 'All' || selectedDepartment.toLowerCase() === newDoctorObj.department.toLowerCase()) {
       setFilteredDoctors([...filteredDoctors, newDoctorObj]);
     }
     
-    // Update departments list if it's a new department
-    if (!departments.includes(newDoctorObj.department)) {
-      setDepartments([...departments, newDoctorObj.department]);
-    }
     try {
       const adminDocRef = doc(db, "users", currentUser.uid);
-      await updateDoc(adminDocRef, {
-        doctors: arrayUnion(newDoctorObj)
+      
+      const departmentExists = departments.some(
+        dept => dept.toLowerCase() === newDoctorObj.department.toLowerCase()
+      );
+      
+      if (showCustomDepartment && customDepartment.trim() && !departmentExists) {
+        await updateDoc(adminDocRef, {
+          departments: arrayUnion(customDepartment.trim()),
+          doctors: arrayUnion(newDoctorObj)
+        });
+        
+        const updatedDepartments = [...departments, customDepartment.trim()];
+        setDepartments(updatedDepartments);
+      } else {
+        await updateDoc(adminDocRef, {
+          doctors: arrayUnion(newDoctorObj)
+        });
+      }
+      toast.success("Doctor added successfully");
+      
+      setNewDoctor({
+        name: '',
+        department: '',
+        phone: '',
+        email: '',
+        photo: 'https://randomuser.me/api/portraits/lego/1.jpg',
+        availability: true
       });
-      toast.success("Doctor added successfully")
+      setShowCustomDepartment(false);
+      setCustomDepartment('');
+      setSelectedDays([]);
+      setStartTime('09:00');
+      setEndTime('17:00');
+      setFormErrors({});
+      
+      toggleAddDoctorModal();
     } catch (error) {
       console.log(error);
-      toast.error("Error updating Firestore document: ", error);
+      toast.error("Error updating database: " + error.message);
     }
-    // Reset form
-    setNewDoctor({
-      name: '',
-      department: '',
-      phone: '',
-      email: '',
-      photo: 'https://randomuser.me/api/portraits/lego/1.jpg',
-      availability: true
-    });
-    setSelectedDays([]);
-    setStartTime('09:00');
-    setEndTime('17:00');
-    setFormErrors({});
-    
-    toggleAddDoctorModal();
   };
+
+  useEffect(() => {
+    if (doctors.length > 0) {
+      const updatedDoctors = doctors.map(doctor => ({
+        ...doctor,
+        currentlyAvailable: isDoctorAvailable(doctor)
+      }));
+      
+      setDoctors(updatedDoctors);
+      
+      if (selectedDepartment === 'All') {
+        setFilteredDoctors(sortData(updatedDoctors, sortConfig));
+      } else {
+        const filtered = updatedDoctors.filter(doctor => 
+          doctor.department && doctor.department.toLowerCase() === selectedDepartment.toLowerCase()
+        );
+        setFilteredDoctors(sortData(filtered, sortConfig));
+      }
+    }
+  }, [currentTime, isDoctorAvailable]);
 
   return (
     <DashboardLayout>
       <div className="space-y-4">
-        <div className="flex justify-end items-center">
-          <div className="flex items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+          <div className="flex items-center gap-3">
             <motion.span 
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
-              className="mr-4 px-3 py-1 rounded-full bg-purple-100 text-sm font-medium text-purple-800 flex items-center"
+              className="px-3 py-1 rounded-full bg-purple-100 text-sm font-medium text-purple-800 flex items-center"
             >
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -277,67 +484,61 @@ const Doctors = () => {
               {filteredDoctors.length} Doctors
             </motion.span>
             
-            <motion.button 
-              onClick={toggleAddDoctorModal}
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2.5 rounded-xl shadow-md flex items-center gap-2 font-medium transition-all duration-300"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span>Add Doctor</span>
-              <motion.span
-                initial={{ opacity: 0, rotate: -90, x: -5 }}
-                animate={{ opacity: 1, rotate: 0, x: 0 }}
-                transition={{ delay: 0.1, duration: 0.3 }}
+            <div className="relative inline-block">
+              <select
+                id="department-filter"
+                value={selectedDepartment}
+                onChange={(e) => handleDepartmentFilter(e.target.value)}
+                className="block appearance-none w-auto px-4 py-1.5 text-sm bg-white text-gray-800 border border-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-purple-500 pr-8"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                <option value="All" className="text-gray-800">All Departments</option>
+                {departments.map((dept) => (
+                  <option key={dept} value={dept} className="text-gray-800">{dept}</option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-purple-600">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                  <path d="M7 7l3-3 3 3m0 6l-3 3-3-3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-              </motion.span>
-            </motion.button>
-          </div>
-        </div>
-
-        {/* Department tabs - with smooth animations */}
-        <div className="rounded-xl bg-white shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-1 overflow-x-auto hide-scrollbar">
-            <div className="flex space-x-1 min-w-max">
-              <motion.button
-                onClick={() => handleDepartmentFilter('All')}
-                className={`py-2.5 px-5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  selectedDepartment === 'All'
-                    ? 'bg-purple-100 text-purple-800'
-                    : 'text-gray-600 hover:bg-gray-50'
-                }`}
-                whileHover={{ scale: selectedDepartment === 'All' ? 1 : 1.03 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                All Departments
-              </motion.button>
-              
-              {departments.map((dept) => (
-                <motion.button
-                  key={dept}
-                  onClick={() => handleDepartmentFilter(dept)}
-                  className={`py-2.5 px-5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    selectedDepartment === dept
-                      ? 'bg-purple-100 text-purple-800'
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
-                  whileHover={{ scale: selectedDepartment === dept ? 1 : 1.03 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {dept}
-                </motion.button>
-              ))}
+              </div>
             </div>
           </div>
+          
+          <motion.button 
+            onClick={toggleAddDoctorModal}
+            variants={buttonVariants}
+            whileHover="hover"
+            whileTap="tap"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2 rounded-xl shadow-md flex items-center gap-2 font-medium transition-all duration-300"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <span>Add Doctor</span>
+          </motion.button>
         </div>
+        
+        {/* Active Filters Display */}
+        {selectedDepartment !== 'All' && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <span className="text-sm text-gray-600 font-medium py-1">Active filters:</span>
+            <span className="inline-flex items-center px-3 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+              Department: {selectedDepartment}
+              <button
+                type="button"
+                className="ml-1.5 inline-flex items-center justify-center h-4 w-4 rounded-full bg-purple-200 text-purple-700 hover:bg-purple-300 focus:outline-none"
+                onClick={() => handleDepartmentFilter('All')}
+              >
+                <span className="sr-only">Remove filter</span>
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </span>
+          </div>
+        )}
 
-        {/* Doctors table - with animations */}
+        {/* Doctors table */}
         <motion.div 
           className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden"
           initial={{ opacity: 0, y: 20 }}
@@ -400,10 +601,10 @@ const Doctors = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  <AnimatePresence>
+                  <AnimatePresence mode="wait">
                     {filteredDoctors.map((doctor, index) => (
                       <motion.tr 
-                        key={doctor.id} 
+                        key={`doctor-row-${doctor.id}`}
                         custom={index}
                         variants={tableRowVariants}
                         initial="hidden"
@@ -440,15 +641,26 @@ const Doctors = () => {
                           {doctor.timings}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-3 py-1 inline-flex text-xs leading-5 font-medium rounded-full ${
-                              doctor.availability
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {doctor.availability ? 'Available' : 'Unavailable'}
-                          </span>
+                          <div className="flex flex-col items-start">
+                            <span
+                              className={`inline-flex px-2 py-0.5 text-xs leading-4 font-medium rounded-full ${
+                                doctor.currentlyAvailable
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}
+                            >
+                              {doctor.currentlyAvailable && (
+                                <span className="relative -ml-0.5 mr-1 w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                              )}
+                              {doctor.currentlyAvailable ? 'Available Now' : 'Unavailable'}
+                            </span>
+                            
+                            {!doctor.currentlyAvailable && doctor.availability && (
+                              <span className="text-xs text-gray-500 mt-1 pl-1">
+                                {isWorkingDayToday(doctor) ? 'Returns at next shift' : 'Not working today'}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-3">
@@ -479,53 +691,41 @@ const Doctors = () => {
               </table>
             </div>
           ) : (
-            <div className="text-center py-16">
-              <motion.div 
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4"
-              >
-                <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            <div className="py-12 text-center">
+              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-              </motion.div>
-              <motion.h3 
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.1, duration: 0.5 }}
-                className="text-lg font-medium text-gray-900 mb-2"
-              >
-                No doctors found
-              </motion.h3>
-              <motion.p 
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="text-gray-500"
-              >
-                Try selecting a different department or add a new doctor.
-              </motion.p>
-              <motion.div 
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="mt-6"
-              >
-                <button 
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">No doctors found</h3>
+              <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                {selectedDepartment !== 'All' 
+                  ? `There are no doctors in the ${selectedDepartment} department.` 
+                  : 'No doctors have been added yet.'}
+              </p>
+              <div className="flex justify-center space-x-3">
+                {selectedDepartment !== 'All' && (
+                  <button
+                    type="button"
+                    onClick={() => handleDepartmentFilter('All')}
+                    className="px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    View All Departments
+                  </button>
+                )}
+                <button
+                  type="button"
                   onClick={toggleAddDoctorModal}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  className="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
                 >
-                  Add Your First Doctor
+                  Add New Doctor
                 </button>
-              </motion.div>
+              </div>
             </div>
           )}
         </motion.div>
       </div>
 
-      {/* Add Doctor Modal - with enhanced animations */}
       <AnimatePresence>
         {showAddDoctorModal && (
           <motion.div 
@@ -561,7 +761,6 @@ const Doctors = () => {
               </div>
               
               <form className="space-y-4" onSubmit={handleAddDoctor}>
-                {/* Name field */}
                 <div>
                   <label htmlFor="doctor-name" className="block text-sm font-medium text-gray-700">
                     Full Name *
@@ -582,7 +781,6 @@ const Doctors = () => {
                   )}
                 </div>
 
-                {/* Department field */}
                 <div>
                   <label htmlFor="doctor-department" className="block text-sm font-medium text-gray-700">
                     Department *
@@ -594,24 +792,38 @@ const Doctors = () => {
                     }`}
                     value={newDoctor.department}
                     onChange={handleInputChange}
-                    required
+                    required={!showCustomDepartment}
                   >
                     <option value="" disabled>Select department</option>
                     {departments.map((dept) => (
                       <option key={dept} value={dept}>{dept}</option>
                     ))}
-                    <option value="New Department">Add New Department</option>
+                    <option value="custom">+ Add New Department</option>
                   </select>
+                  
+                  {showCustomDepartment && (
+                    <input
+                      type="text"
+                      id="custom-department"
+                      placeholder="Enter department name"
+                      value={customDepartment}
+                      onChange={handleInputChange}
+                      className={`mt-2 block w-full rounded-md border-0 shadow-sm bg-gray-50 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-900 px-3 py-2 ${
+                        formErrors.department ? 'border-red-500 ring-1 ring-red-500' : ''
+                      }`}
+                      required
+                    />
+                  )}
+                  
                   {formErrors.department && (
                     <p className="mt-1 text-sm text-red-600">{formErrors.department}</p>
                   )}
                 </div>
 
-                {/* Contact Info */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label htmlFor="doctor-phone" className="block text-sm font-medium text-gray-700">
-                      Phone Number *
+                      Phone Number * <span className="text-xs text-gray-500">(10 digits)</span>
                     </label>
                     <input
                       type="tel"
@@ -619,14 +831,19 @@ const Doctors = () => {
                       className={`mt-1 block w-full rounded-md border-0 shadow-sm bg-gray-50 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-gray-900 px-3 py-2 ${
                         formErrors.phone ? 'border-red-500 ring-1 ring-red-500' : ''
                       }`}
-                      placeholder="+91 98765 43210"
+                      placeholder="9876543210"
                       value={newDoctor.phone}
                       onChange={handleInputChange}
+                      pattern="[0-9]{10}"
+                      maxLength="10"
                       required
                     />
                     {formErrors.phone && (
                       <p className="mt-1 text-sm text-red-600">{formErrors.phone}</p>
                     )}
+                    <p className="mt-1 text-xs text-gray-500">
+                      {newDoctor.phone.length}/10 digits
+                    </p>
                   </div>
                   <div>
                     <label htmlFor="doctor-email" className="block text-sm font-medium text-gray-700">
@@ -649,7 +866,7 @@ const Doctors = () => {
                   </div>
                 </div>
 
-                {/* Working Days - Updated with circle icons */}
+                {/* Working Days */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Working Days *
@@ -683,7 +900,7 @@ const Doctors = () => {
                   )}
                 </div>
 
-                {/* Timings - Updated with start/end time inputs */}
+                {/* Timings */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Timings *
@@ -773,13 +990,23 @@ const Doctors = () => {
   );
 };
 
-// Helper function to format time from 24-hour to 12-hour format
+// Helper function to check if today is a doctor's working day
+function isWorkingDayToday(doctor) {
+  if (!doctor.workingDays) return false;
+  
+  const doctorDays = doctor.workingDays.split(', ').map(day => day.toLowerCase());
+  const currentDayShort = new Intl.DateTimeFormat('en-US', { weekday: 'short' })
+    .format(new Date()).substring(0, 3).toLowerCase();
+  
+  return doctorDays.some(day => day.toLowerCase() === currentDayShort);
+}
+
 function formatTime(time) {
   if (!time) return '';
   const [hours, minutes] = time.split(':');
   const hour = parseInt(hours, 10);
   const ampm = hour >= 12 ? 'PM' : 'AM';
-  const formattedHour = hour % 12 || 12; // Convert 0 to 12 for 12 AM
+  const formattedHour = hour % 12 || 12;
   return `${formattedHour}:${minutes} ${ampm}`;
 }
 

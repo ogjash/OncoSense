@@ -78,13 +78,13 @@ const DashboardLayout = ({ children }) => {
             </Link>
           </div>
 
-          <div className="hidden lg:flex items-center">
-            <h1 className="text-xl font-semibold text-gray-800">
+          <div className="hidden lg:flex items-center lg:w-40">
+            <h1 className="text-xl font-semibold text-gray-800 truncate">
               {location.pathname.split('/').pop().charAt(0).toUpperCase() + location.pathname.split('/').pop().slice(1) || 'Dashboard'}
             </h1>
           </div>
           
-          <div className="flex-1 lg:flex lg:items-center lg:justify-center max-w-2xl mx-auto px-4 hidden">
+          <div className="flex-1 lg:flex items-center justify-center max-w-[500px] mx-auto px-4">
             <div className="relative w-full">
               <input
                 type="text"
@@ -101,12 +101,15 @@ const DashboardLayout = ({ children }) => {
           
           {/* Right section with notification and profile */}
           <div className="flex items-center space-x-3 lg:space-x-6">
-            {/* Search button for mobile */}
-            <button className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 lg:hidden">
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
+            <div className="relative lg:hidden">
+              <button 
+                className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 sm:hidden"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </div>
             
             <div className="relative">
               <button 
