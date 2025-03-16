@@ -30,6 +30,7 @@ import PatientReport from './pages/patient/dashboard/Report';
 
 // New component for role-based routing
 import RoleBasedRoutes from './components/RoleBasedRoutes';
+import Chatbot from "./pages/patient/dashboard/Chatbot";
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
                 <Route path="/patient/dashboard" element={<PatientDashboard />} />
                 <Route path="/patient/appointment/:docId" element={<PatientAppointment />} />
                 <Route path="/patient/report" element={<PatientReport />} />
+                <Route path="/patient/chatbot" element={<Chatbot />} />
               </Route>
 
               {/* Fallback route */}
