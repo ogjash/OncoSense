@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "./context/AuthContext";
-import AppContextProvider from "./context/AppContext";
 import Navbar from "./components/Navbar";
 import MainLayout from "./components/MainLayout";
 import Home from "./pages/Home";
@@ -36,7 +35,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppContextProvider>
+        
           <div className="min-h-screen bg-gray-50">
             <Routes>
               <Route element={<><Navbar /><MainLayout /></>}>
@@ -62,10 +61,13 @@ function App() {
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/reservations" element={<Reservations />} />
+                <Route path="/staff" element={<div>
+                  This will be the staff page
+                </div>} />
 
                 {/* Patient routes */}
                 <Route path="/patient/dashboard" element={<PatientDashboard />} />
-                <Route path="/patient/appointment" element={<PatientAppointment />} />
+                <Route path="/patient/appointment/:docId" element={<PatientAppointment />} />
                 <Route path="/patient/report" element={<PatientReport />} />
               </Route>
 
@@ -74,7 +76,7 @@ function App() {
             </Routes>
             <ToastContainer />
           </div>
-        </AppContextProvider>
+        
       </AuthProvider>
     </BrowserRouter>
   );

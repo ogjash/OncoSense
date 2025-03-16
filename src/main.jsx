@@ -7,8 +7,10 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-    <AuthProvider>
-      <ToastContainer/>
-      <App />
-    </AuthProvider>
+  
+      <AuthProvider>
+        <ToastContainer/>
+        <App />
+      </AuthProvider>
+  
 );

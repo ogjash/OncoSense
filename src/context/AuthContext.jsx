@@ -88,13 +88,19 @@ export const AuthProvider = ({ children }) => {
 
     setUserLoggedIn(true);
   };
-
+  const logout = ()=>
+  {
+    auth.signOut();
+    setCurrentUser(null);
+    setUserLoggedIn(false);
+  }
   const value = {
     currentUser,
     userLoggedIn,
     setCurrentUser,
     signup,
     login,
+    logout,
   };
 
   return (

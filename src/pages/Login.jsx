@@ -34,7 +34,7 @@ const Login = () => {
       if (currentUser.role === 'hospital') {
         navigate('/dashboard');
       } else if (currentUser.role === 'patient') {
-        navigate('/patients');
+        navigate('/patient/ddashboard');
       } else {
         navigate('/');
       }
