@@ -1,8 +1,14 @@
 import DashboardLayout from '../../components/DashboardLayout';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { doc, updateDoc, arrayUnion, getDocs, collection } from "firebase/firestore";
+import { db } from "../../fireabase";
+import { useAuth } from "../../context/UseAuth";
+import { toast } from 'react-toastify';
 
 const Doctors = () => {
+  const { currentUser } = useAuth();
+
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -26,77 +32,35 @@ const Doctors = () => {
   const [formErrors, setFormErrors] = useState({});
 
   // Sample doctor data - In a real app, this would come from an API
-  const sampleDoctors = [
-    {
-      id: 1,
-      name: 'Dr. Sarah Johnson',
-      photo: 'https://randomuser.me/api/portraits/women/45.jpg',
-      department: 'Oncology',
-      phone: '+91 98765 43210',
-      email: 'sjohnson@oncosense.med',
-      availability: true,
-      workingDays: 'Mon, Wed, Fri',
-      timings: '9:00 AM - 5:00 PM'
-    },
-    {
-      id: 2,
-      name: 'Dr. Michael Chen',
-      photo: 'https://randomuser.me/api/portraits/men/32.jpg',
-      department: 'Radiology',
-      phone: '+91 87654 32109',
-      email: 'mchen@oncosense.med',
-      availability: true,
-      workingDays: 'Mon, Tue, Thu',
-      timings: '8:00 AM - 4:00 PM'
-    },
-    {
-      id: 3,
-      name: 'Dr. Emily Rodriguez',
-      photo: 'https://randomuser.me/api/portraits/women/68.jpg',
-      department: 'Hematology',
-      phone: '+91 76543 21098',
-      email: 'erodriguez@oncosense.med',
-      availability: false,
-      workingDays: 'Tue, Thu, Sat',
-      timings: '10:00 AM - 6:00 PM'
-    },
-    {
-      id: 4,
-      name: 'Dr. David Wilson',
-      photo: 'https://randomuser.me/api/portraits/men/75.jpg',
-      department: 'Oncology',
-      phone: '+91 65432 10987',
-      email: 'dwilson@oncosense.med',
-      availability: true,
-      workingDays: 'Mon, Wed, Fri',
-      timings: '9:00 AM - 5:00 PM'
-    },
-    {
-      id: 5,
-      name: 'Dr. Amanda Lee',
-      photo: 'https://randomuser.me/api/portraits/women/90.jpg',
-      department: 'Surgical Oncology',
-      phone: '+91 54321 09876',
-      email: 'alee@oncosense.med',
-      availability: true,
-      workingDays: 'Mon to Fri',
-      timings: '8:00 AM - 4:00 PM'
-    }
-  ];
 
-  // Initialize data
+  
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setDoctors(sampleDoctors);
-      setFilteredDoctors(sampleDoctors);
-      
-      // Extract unique departments
-      const uniqueDepartments = [...new Set(sampleDoctors.map(doctor => doctor.department))];
-      setDepartments(uniqueDepartments);
-      
-      setLoading(false);
-    }, 800);
+  
+    const fetchDoctors = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const doctorsList = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.doctors) {
+            doctorsList.push(...data.doctors);
+          }
+        });
+        setDoctors(doctorsList);
+        setFilteredDoctors(doctorsList);
+
+        // Extract unique departments
+        const uniqueDepartments = [...new Set(doctorsList.map(doctor => doctor.department))];
+        setDepartments(uniqueDepartments);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching doctors: ", error);
+        toast.error("Error fetching doctors");
+      }
+    };
+
+    fetchDoctors();
   }, []);
 
   // Handle department filter
@@ -211,7 +175,7 @@ const Doctors = () => {
   };
 
   // New function to handle doctor form submission
-  const handleAddDoctor = (e) => {
+  const handleAddDoctor = async (e) => {
     e.preventDefault();
     
     // Validate form
@@ -269,7 +233,16 @@ const Doctors = () => {
     if (!departments.includes(newDoctorObj.department)) {
       setDepartments([...departments, newDoctorObj.department]);
     }
-    
+    try {
+      const adminDocRef = doc(db, "users", currentUser.uid);
+      await updateDoc(adminDocRef, {
+        doctors: arrayUnion(newDoctorObj)
+      });
+      toast.success("Doctor added successfully")
+    } catch (error) {
+      console.log(error);
+      toast.error("Error updating Firestore document: ", error);
+    }
     // Reset form
     setNewDoctor({
       name: '',

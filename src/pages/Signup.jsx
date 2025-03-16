@@ -153,7 +153,7 @@ const Signup = () => {
   
       await signup(userData);
       toast.success('Account created successfully!');
-      navigate(role === 'hospital' ? '/dashboard' : '/patients');
+      navigate(role === 'hospital' ? '/dashboard' : '/patient/dashboard');
     } catch (error) {
       toast.error(error.message);
     }

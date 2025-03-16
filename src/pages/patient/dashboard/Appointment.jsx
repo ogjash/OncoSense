@@ -19,8 +19,10 @@ const Appointment=()=>{
 
 
     const fetchDocInfo =async()=>{
-        const docInfo = doctors.find(doc => doc._id === docId)
-        setDocInfo(docInfo);
+        if (doctors.length > 0) {
+            const docInfo = doctors.find(doc => doc._id === docId)
+            setDocInfo(docInfo);
+        }
     }
 
     const getAvailableSlots = async() =>{
@@ -71,7 +73,7 @@ const Appointment=()=>{
         getAvailableSlots()
     },[docInfo])
 
-    if (!docInfo) return <p>Loading...</p>;
+    if (!docInfo) return <p className='text-black min-h-screen flex items-center justify-center text-4xl'>Loading...</p>;
 
     
     return docInfo && (
