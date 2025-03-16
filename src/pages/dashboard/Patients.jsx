@@ -1,16 +1,12 @@
 import DashboardLayout from '../../components/DashboardLayout';
 import React from 'react';
+
 const Patients = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Patients</h1>
-          <p className="text-gray-600">Manage patient records and information</p>
-        </div>
-
-        {/* Empty State */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+        {/* Empty State - Updated with more subtle border */}
+        <div className="bg-white rounded-xl shadow-[0_1px_3px_0_rgba(0,0,0,0.02)] border border-gray-100/20 p-8">
           <div className="text-center">
             <div className="mx-auto w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mb-4">
               <svg
@@ -39,4 +35,4 @@ const Patients = () => {
   );
 };
 
-export default Patients; 
+export default Patients;

@@ -1,14 +1,10 @@
 import DashboardLayout from '../../components/DashboardLayout';
 import React from 'react';
+
 const DoctorSchedule = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Doctor Schedule</h1>
-          <p className="text-gray-600">Manage and view doctor schedules</p>
-        </div>
-
         {/* Empty State */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
           <div className="text-center">
@@ -39,4 +35,4 @@ const DoctorSchedule = () => {
   );
 };
 
-export default DoctorSchedule; 
+export default DoctorSchedule;

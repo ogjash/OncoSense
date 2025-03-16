@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
@@ -13,11 +13,11 @@ import Insights from './pages/Insights';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/dashboard/Dashboard';
-import Reservations from './pages/dashboard/Reservations';
+import Appointment from './pages/dashboard/Appointment';
 import DoctorSchedule from './pages/dashboard/DoctorSchedule';
 import Patients from './pages/dashboard/Patients';
 import Treatments from './pages/dashboard/Treatments';
-import Reports from './pages/dashboard/Reports';
+import Staff from './pages/dashboard/Staff';
 import Settings from './pages/dashboard/Settings';
 import AuthLayout from './layouts/AuthLayout';
 import React from 'react';
@@ -42,12 +42,13 @@ function App() {
             </Route>
 
             <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-            <Route path="/reservations" element={<PrivateRoute><Reservations /></PrivateRoute>} />
+            <Route path="/appointment" element={<PrivateRoute><Appointment /></PrivateRoute>} />
             <Route path="/doctor-schedule" element={<PrivateRoute><DoctorSchedule /></PrivateRoute>} />
             <Route path="/patients" element={<PrivateRoute><Patients /></PrivateRoute>} />
             <Route path="/treatments" element={<PrivateRoute><Treatments /></PrivateRoute>} />
-            <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
+            <Route path="/staff" element={<PrivateRoute><Staff /></PrivateRoute>} />
             <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
             
           </Routes>
           <ToastContainer />
