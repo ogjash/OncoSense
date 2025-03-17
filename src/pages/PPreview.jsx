@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Navbar from '../components/navbar.jsx';
-import Footer from '../components/footer.jsx';
+import Navbar from '../../components/navbar.jsx';
 
 const PPreview = () => {
   return (
