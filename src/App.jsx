@@ -11,9 +11,6 @@ import Solutions from "./pages/Solutions";
 import Insights from "./pages/Insights";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-// Solution Preview pages
-import HPreview from "./pages/HPreview";
-import PPreview from "./pages/PPreview";
 
 // Hospital dashboard pages
 import Dashboard from "./pages/dashboard/Dashboard";
