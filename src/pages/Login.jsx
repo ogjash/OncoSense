@@ -5,10 +5,11 @@ import { toast } from 'react-toastify';
 import { useState } from 'react';
 import React from 'react';
 import { useAuth } from '../context/UseAuth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login,currentUser } = useAuth();
+  const { login, currentUser } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -22,24 +23,34 @@ const Login = () => {
     }));
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // First, login the user
       await login(formData.email, formData.password);
       toast.success('Logged in successfully!');
-
       
-      console.log(currentUser.role);
-      if (currentUser.role === 'hospital') {
-        navigate('/dashboard');
-      } else if (currentUser.role === 'patient') {
-        navigate('/patient/dashboard');
+      // After login, we need to fetch the user's role from Firestore
+      // instead of relying on currentUser.role which might not be set yet
+      const db = getFirestore();
+      const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const role = userData.role || 'patient';
+        
+        // Navigate based on the fetched role
+        if (role === 'hospital') {
+          navigate('/dashboard');
+        } else {
+          navigate('/patient/dashboard');
+        }
       } else {
-        navigate('/');
+        // If no user document, default to patient
+        navigate('/patient/dashboard');
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.message || "Login failed. Please check your credentials.");
     }
   };
 
@@ -158,4 +169,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;

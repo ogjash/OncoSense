@@ -16,6 +16,7 @@ const RoleBasedRoutes = () => {
       if (!currentUser) {
         // If not logged in, redirect to login
         navigate('/login', { replace: true });
+        setChecking(false);
         return;
       }
 
@@ -30,29 +31,35 @@ const RoleBasedRoutes = () => {
           
           // Check if user is in the correct section based on role
           const currentPath = location.pathname;
-          const isInHospitalSection = currentPath.startsWith('/patient') === false;
-          const isInPatientSection = currentPath.startsWith('/patient');
           
-          // Redirect if needed
-          if (role === 'hospital' && isInPatientSection) {
-            navigate('/dashboard', { replace: true });
-          } else if (role === 'patient' && isInHospitalSection) {
-            navigate('/patient/dashboard', { replace: true });
+          // Only redirect if user is at root, login, or incorrect section
+          if (currentPath === '/' || currentPath === '/login') {
+            // Redirect based on role
+            if (role === 'hospital') {
+              navigate('/dashboard', { replace: true });
+            } else {
+              navigate('/patient/dashboard', { replace: true });
+            }
+          } else {
+            // If already in a specific path, check if it matches their role
+            const isInHospitalSection = !currentPath.startsWith('/patient');
+            const isInPatientSection = currentPath.startsWith('/patient');
+            
+            if (role === 'hospital' && isInPatientSection) {
+              navigate('/dashboard', { replace: true });
+            } else if (role === 'patient' && isInHospitalSection) {
+              navigate('/patient/home', { replace: true });
+            }
           }
         } else {
-          // No user document found
           setUserRole('patient');
           console.warn("No user document found in Firestore, defaulting to patient role");
-          if (!location.pathname.startsWith('/patient')) {
-            navigate('/patient/dashboard', { replace: true });
-          }
+          navigate('/patient/home', { replace: true });
         }
       } catch (error) {
         console.error("Error fetching user role:", error);
-        setUserRole('patient'); // Default on error
-        if (!location.pathname.startsWith('/patient')) {
-          navigate('/patient/dashboard', { replace: true });
-        }
+        setUserRole('patient');
+        navigate('/patient/home', { replace: true });
       } finally {
         setChecking(false);
       }
@@ -72,10 +79,12 @@ const RoleBasedRoutes = () => {
     );
   }
 
+  // If not logged in, return null (redirect handled in useEffect)
   if (!currentUser) {
     return null;
   }
 
+  // User is logged in and role is checked
   return <Outlet />;
 };
 

@@ -27,10 +27,8 @@ import AuthLayout from "./layouts/AuthLayout";
 import React from "react";
 
 // Patient dashboard pages
-// import PatientDashboard from './pages/patient/dashboard/Dashboard';
 import PatientAppointment from './pages/patient/dashboard/Appointment';
 import PatientReport from './pages/patient/dashboard/Report';
-// import AllDoctors from "./pages/patient/dashboard/AllDoctors";
 import PatientDashboard from "./pages/patient/dashboard/Home";
 import AllDoctors from "./pages/patient/dashboard/Doctors";
 
