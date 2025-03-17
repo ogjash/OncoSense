@@ -24,61 +24,76 @@ import AuthLayout from "./layouts/AuthLayout";
 import React from "react";
 
 // Patient dashboard pages
-import PatientDashboard from './pages/patient/dashboard/Dashboard';
+// import PatientDashboard from './pages/patient/dashboard/Dashboard';
 import PatientAppointment from './pages/patient/dashboard/Appointment';
 import PatientReport from './pages/patient/dashboard/Report';
+// import AllDoctors from "./pages/patient/dashboard/AllDoctors";
+import PatientDashboard from "./pages/patient/dashboard/Home";
+import AllDoctors from "./pages/patient/dashboard/Doctors";
 
 // New component for role-based routing
 import RoleBasedRoutes from './components/RoleBasedRoutes';
 
+import AppContextProvider from './context/AppContext';
+
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
+    <AppContextProvider>
+      <BrowserRouter>
+        <AuthProvider>
         
-          <div className="min-h-screen bg-gray-50">
-            <Routes>
-              <Route element={<><Navbar /><MainLayout /></>}>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<AboutUs />} />
-                <Route path="/what-we-do" element={<WhatWeDo />} />
-                <Route path="/Solutions" element={<Solutions />} />
-                <Route path="/insights" element={<Insights />} />
-              </Route>
+          
+            <div className="min-h-screen bg-gray-50">
+              <Routes>
+                <Route element={<> <Navbar /><MainLayout /></>}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<AboutUs />} />
+                  <Route path="/what-we-do" element={<WhatWeDo />} />
+                  <Route path="/Solutions" element={<Solutions />} />
+                  <Route path="/insights" element={<Insights />} />
+                </Route>
 
-              <Route element={<AuthLayout />}>
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-              </Route>
+                <Route element={<AuthLayout />}>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                </Route>
 
-              {/* Role-based protected routes */}
-              <Route element={<RoleBasedRoutes />}>
-                {/* Hospital routes */}
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/doctors" element={<Doctors />} />
-                <Route path="/patients" element={<Patients />} />
-                <Route path="/treatments" element={<Treatments />} />
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/reservations" element={<Reservations />} />
-                <Route path="/staff" element={<div>
-                  This will be the staff page
-                </div>} />
+                {/* Role-based protected routes */}
+                <Route element={<RoleBasedRoutes />}>
+                  {/* Hospital routes */}
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/doctors" element={<Doctors />} />
+                  <Route path="/patients" element={<Patients />} />
+                  <Route path="/treatments" element={<Treatments />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/reservations" element={<Reservations />} />
+                  <Route path="/staff" element={<div>
+                    This will be the staff page
+                  </div>} />
 
-                {/* Patient routes */}
-                <Route path="/patient/dashboard" element={<PatientDashboard />} />
-                <Route path="/patient/appointment/:docId" element={<PatientAppointment />} />
-                <Route path="/patient/report" element={<PatientReport />} />
-              </Route>
+                  {/* Patient routes */}
+                  <Route path="/patient/home" element={<PatientDashboard />} />
+                  <Route path="/patient/appointment/:docId" element={<PatientAppointment />} />
+                  <Route path="/patient/report" element={<PatientReport />} />
+                  <Route path="/patient/alldoctors" element={<AllDoctors />} />
+                  <Route path="/patient/alldoctors/:speciality" element={<AllDoctors />} />
 
-              {/* Fallback route */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-            <ToastContainer />
-          </div>
-        
-      </AuthProvider>
-    </BrowserRouter>
+                  {/* <Route path="/patient/speciality" element={<AllDoctors />} /> */}
+
+
+
+                </Route>
+
+                {/* Fallback route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+              <ToastContainer />
+            </div>
+          
+        </AuthProvider>
+      </BrowserRouter>
+    </AppContextProvider>
   );
 }
 

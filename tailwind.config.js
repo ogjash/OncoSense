@@ -16,6 +16,9 @@ export default {
           dark: '#111827',
         },
       },
+      gridTemplateColumns: {
+        auto: 'repeat(auto-fill, minmax(200px, 1fr))',
+      },
       backdropBlur: {
         xs: '2px',
       },
