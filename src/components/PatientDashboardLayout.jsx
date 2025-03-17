@@ -78,8 +78,7 @@ const PatientDashboardLayout = ({ children }) => {
 
   // Modified navigation items for patient
   const navItems = [
-    { path: '/patient/home', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-    { path: '/patient/appointment', label: 'Appointments', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
+    { path: '/patient/dashboard', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
     { path: '/patient/alldoctors', label: 'Doctors', icon: 'M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
     { path: '/patient/report', label: 'Medical Reports', icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
     { path: '/patient/chatbot', label: 'Chatbot', icon: 'M12 3c1.88 0 3.67.72 5 2.05 1.33 1.33 2.05 3.12 2.05 5 0 1.87-.73 3.66-2.05 5-1.33 1.33-3.12 2.05-5 2.05-.62 0-1.24-.08-1.84-.23l-4.76 1.36c-.31.09-.64 0-.88-.24-.24-.24-.33-.57-.24-.88l1.36-4.76c-.15-.6-.23-1.22-.23-1.84 0-1.88.72-3.67 2.05-5C8.33 3.72 10.12 3 12 3zm7 7c0-1.36-.52-2.66-1.46-3.61C16.56 5.34 15.27 4.81 14 4.54v2.02c.44.13.87.31 1.27.55.47.28.89.64 1.26 1.01.37.37.73.79 1.01 1.26.4.67.62 1.39.68 2.12H20c-.02-.52-.11-1.02-.26-1.5h-.02zm-9.5-2.5c0-.41.34-.75.75-.75h1.5c.41 0 .75.34.75.75v1.5c0 .41-.34.75-.75.75h-1.5c-.41 0-.75-.34-.75-.75v-1.5zM15.25 9c0-.41.34-.75.75-.75h1.5c.41 0 .75.34.75.75v1.5c0 .41-.34.75-.75.75H16c-.41 0-.75-.34-.75-.75V9zm-5 4c0-.41.34-.75.75-.75h1.5c.41 0 .75.34.75.75v1.5c0 .41-.34.75-.75.75h-1.5c-.41 0-.75-.34-.75-.75v-1.5z' }
@@ -103,7 +102,7 @@ const PatientDashboardLayout = ({ children }) => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -372,24 +371,24 @@ const PatientDashboardLayout = ({ children }) => {
                 <h3 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                   Resources
                 </h3>
-                <Link
-                  to="/patient/help"
+                <div
+                  
                   className="flex items-center px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 hover:text-indigo-600 rounded-lg"
                 >
                   <svg className="w-5 h-5 mr-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Help Center
-                </Link>
-                <Link
-                  to="/patient/contact"
+                </div>
+                <div
+                  
                   className="flex items-center px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 hover:text-indigo-600 rounded-lg"
                 >
                   <svg className="w-5 h-5 mr-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   Contact Doctor
-                </Link>
+                </div>
               </div>
             </div>
           </motion.div>

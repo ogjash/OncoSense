@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import PatientDashboardLayout from "../../../components/PatientDashboardLayout";
 
-const Chatbox = () => {
+const Chatbot = () => {
   const [userInput, setUserInput] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -115,4 +115,4 @@ const Chatbox = () => {
   );
 };
 
-export default Chatbox;
+export default Chatbot;
