@@ -2,17 +2,18 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import CircuitLine from '../components/CircuitLine';
 import { toast } from 'react-toastify';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 import { useAuth } from '../context/UseAuth';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login,currentUser } = useAuth();
+  const auth = useAuth(); // Properly store the auth context
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,24 +23,39 @@ const Login = () => {
     }));
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    
     try {
-      await login(formData.email, formData.password);
+      // Make sure we're using the auth object correctly
+      await auth.login(formData.email, formData.password);
       toast.success('Logged in successfully!');
-
       
-      console.log(currentUser.role);
-      if (currentUser.role === 'hospital') {
-        navigate('/dashboard');
-      } else if (currentUser.role === 'patient') {
-        navigate('/patient/dashboard');
-      } else {
-        navigate('/');
-      }
+      // Wait for the currentUser to be updated
+      setTimeout(() => {
+        setIsLoading(false);
+        
+        if (!auth.currentUser) {
+          console.error("User data not available after login");
+          toast.error("Failed to retrieve user information. Please try again.");
+          return;
+        }
+        
+        console.log("User role:", auth.currentUser.role);
+        
+        if (auth.currentUser.role === 'hospital') {
+          navigate('/dashboard');
+        } else if (auth.currentUser.role === 'patient') {
+          navigate('/patient/dashboard');
+        } else {
+          navigate('/');
+        }
+      }, 1000); // Give some time for auth state to update
     } catch (error) {
-      toast.error(error.message);
+      setIsLoading(false);
+      console.error("Login error:", error);
+      toast.error(error.message || "Login failed. Please check your credentials.");
     }
   };
 
@@ -139,9 +155,10 @@ const Login = () => {
 
             <button
               type="submit"
+              disabled={isLoading}
               className="w-full bg-primary hover:bg-primary-dark text-white py-3 rounded-lg transition-colors font-medium"
             >
-              Sign in
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
@@ -158,4 +175,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;

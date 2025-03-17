@@ -49,7 +49,7 @@ const RoleBasedRoutes = () => {
         }
       } catch (error) {
         console.error("Error fetching user role:", error);
-        setUserRole('patient'); // Default on error
+        setUserRole('patient');
         if (!location.pathname.startsWith('/patient')) {
           navigate('/patient/dashboard', { replace: true });
         }

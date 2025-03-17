@@ -11,9 +11,6 @@ import Solutions from "./pages/Solutions";
 import Insights from "./pages/Insights";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-// Solution Preview pages
-import HPreview from "./pages/HPreview";
-import PPreview from "./pages/PPreview";
 
 // Hospital dashboard pages
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -27,10 +24,8 @@ import AuthLayout from "./layouts/AuthLayout";
 import React from "react";
 
 // Patient dashboard pages
-// import PatientDashboard from './pages/patient/dashboard/Dashboard';
 import PatientAppointment from './pages/patient/dashboard/Appointment';
 import PatientReport from './pages/patient/dashboard/Report';
-// import AllDoctors from "./pages/patient/dashboard/AllDoctors";
 import PatientDashboard from "./pages/patient/dashboard/Home";
 import AllDoctors from "./pages/patient/dashboard/Doctors";
 

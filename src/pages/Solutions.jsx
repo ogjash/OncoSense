@@ -1,8 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import React from 'react';
-import Navbar from '../components/navbar.jsx';
-import Footer from '../components/footer.jsx';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const Solutions = () => {
   const navigate = useNavigate();
