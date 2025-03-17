@@ -30,11 +30,11 @@ const Login = () => {
       toast.success('Logged in successfully!');
 
       
-      console.log(currentUser);
+      console.log(currentUser.role);
       if (currentUser.role === 'hospital') {
         navigate('/dashboard');
       } else if (currentUser.role === 'patient') {
-        navigate('/patient/ddashboard');
+        navigate('/patient/dashboard');
       } else {
         navigate('/');
       }

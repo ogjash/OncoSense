@@ -4,6 +4,8 @@ import { useState } from 'react';
 import React from 'react';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showSolutionsDropdown, setShowSolutionsDropdown] = useState(false);
+  const [activeTab, setActiveTab] = useState('hospital');
   const navigate = useNavigate();
 
   const toggleMenu = () => {
@@ -20,11 +22,28 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
+  const handleSolutionsMouseEnter = () => {
+    setShowSolutionsDropdown(true);
+  };
+
+  const handleSolutionsMouseLeave = () => {
+    setShowSolutionsDropdown(false);
+  };
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const handleViewDetails = (path) => {
+    navigate(path);
+    setShowSolutionsDropdown(false);
+  };
+
   return (
     <motion.nav 
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="fixed top-4 left-4 right-4 z-50 overflow-x-hidden">
+      className="fixed top-4 left-4 right-4 z-50">
       <div className="relative">
         <div className="absolute inset-0 backdrop-blur-xl bg-black/30 rounded-2xl border border-primary/20"></div>
         
@@ -41,9 +60,89 @@ const Navbar = () => {
               <Link to="/what-we-do" className="text-gray-300 hover:text-primary transition-colors">
                 What We Do
               </Link>
-              <Link to="/solutions" className="text-gray-300 hover:text-primary transition-colors">
-                Solutions
-              </Link>
+              <div 
+                className="relative"
+                onMouseEnter={handleSolutionsMouseEnter}
+                onMouseLeave={handleSolutionsMouseLeave}
+              >
+                <Link to="/solutions" className="text-gray-300 hover:text-primary transition-colors">
+                  Solutions
+                </Link>
+                
+                {/* Solutions Dropdown */}
+                <AnimatePresence>
+                  {showSolutionsDropdown && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute left-1/2 transform -translate-x-1/2 mt-4 w-96 bg-black/80 backdrop-blur-xl rounded-xl border border-primary/20 shadow-lg shadow-primary/20 z-50"
+                    >
+                      <div className="p-4">
+                        {/* Tab Navigation */}
+                        <div className="flex border-b border-gray-700 mb-4">
+                          <button
+                            className={`px-4 py-2 ${activeTab === 'hospital' ? 'text-primary border-b-2 border-primary' : 'text-gray-300'}`}
+                            onClick={() => handleTabClick('hospital')}
+                          >
+                            Hospital Dashboard
+                          </button>
+                          <button
+                            className={`px-4 py-2 ${activeTab === 'patient' ? 'text-primary border-b-2 border-primary' : 'text-gray-300'}`}
+                            onClick={() => handleTabClick('patient')}
+                          >
+                            Patient Dashboard
+                          </button>
+                        </div>
+                        
+                        {/* Tab Content */}
+                        {activeTab === 'hospital' ? (
+                          <div className="flex space-x-4">
+                            <div className="w-32 h-24 overflow-hidden rounded-lg">
+                              <img 
+                                src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80" 
+                                alt="Hospital Dashboard Preview" 
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-white font-medium mb-1">Hospital Dashboard</h4>
+                              <p className="text-gray-300 text-sm mb-2">Comprehensive management system for hospitals</p>
+                              <button 
+                                className="text-sm bg-primary hover:bg-primary-dark text-white px-3 py-1 rounded-full transition-colors"
+                                onClick={() => handleViewDetails('/hpreview')}
+                              >
+                                View Details
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex space-x-4">
+                            <div className="w-32 h-24 overflow-hidden rounded-lg">
+                              <img 
+                                src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=800&q=80" 
+                                alt="Patient Dashboard Preview" 
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-white font-medium mb-1">Patient Dashboard</h4>
+                              <p className="text-gray-300 text-sm mb-2">Patient-centric healthcare management</p>
+                              <button 
+                                className="text-sm bg-primary hover:bg-primary-dark text-white px-3 py-1 rounded-full transition-colors"
+                                onClick={() => handleViewDetails('/ppreview')}
+                              >
+                                View Details
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
               <Link to="/insights" className="text-gray-300 hover:text-primary transition-colors">
                 Insights
               </Link>
