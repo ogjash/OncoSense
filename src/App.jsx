@@ -11,6 +11,9 @@ import Solutions from "./pages/Solutions";
 import Insights from "./pages/Insights";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+// Solution Preview pages
+import HPreview from "./pages/HPreview";
+import PPreview from "./pages/PPreview";
 
 // Hospital dashboard pages
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -45,6 +48,8 @@ function App() {
                 <Route path="/what-we-do" element={<WhatWeDo />} />
                 <Route path="/Solutions" element={<Solutions />} />
                 <Route path="/insights" element={<Insights />} />
+                <Route path="/hpreview" element={<HPreview />} />
+                <Route path="/ppreview" element={<PPreview />} />
               </Route>
 
               <Route element={<AuthLayout />}>
