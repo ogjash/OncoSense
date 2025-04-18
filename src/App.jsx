@@ -33,6 +33,7 @@ import AllDoctors from "./pages/patient/dashboard/Doctors";
 import RoleBasedRoutes from './components/RoleBasedRoutes';
 
 import AppContextProvider from './context/AppContext';
+import Chatbot from "./pages/patient/dashboard/Chatbot";
 
 function App() {
   return (
@@ -71,11 +72,12 @@ function App() {
                   </div>} />
 
                   {/* Patient routes */}
-                  <Route path="/patient/home" element={<PatientDashboard />} />
+                  <Route path="/patient/dashboard" element={<PatientDashboard />} />
                   <Route path="/patient/appointment/:docId" element={<PatientAppointment />} />
                   <Route path="/patient/report" element={<PatientReport />} />
                   <Route path="/patient/alldoctors" element={<AllDoctors />} />
                   <Route path="/patient/alldoctors/:speciality" element={<AllDoctors />} />
+                  <Route path="/patient/chatbot" element={<Chatbot />} />
 
                   {/* <Route path="/patient/speciality" element={<AllDoctors />} /> */}
 
@@ -84,7 +86,7 @@ function App() {
                 </Route>
 
                 {/* Fallback route */}
-                <Route path="*" element={<Navigate to="/" replace />} />
+                {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
               </Routes>
               <ToastContainer />
             </div>
