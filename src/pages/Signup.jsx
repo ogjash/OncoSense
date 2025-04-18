@@ -198,10 +198,8 @@ const Signup = () => {
             <p className="text-gray-400">Join OncoSense today</p>
           </div>
 
-          {/* Progress Steps - Only show in step 2 and beyond */}
           {step > 1 && (
             <div className="flex justify-between mb-8">
-              {/* Show 2 steps for patients but 3 steps for hospitals */}
               {[...Array(role === 'hospital' ? 3 : 2)].map((_, i) => (
                 <div
                   key={i}
@@ -367,7 +365,6 @@ const Signup = () => {
               </motion.div>
             )}
 
-            {/* NEW Step 3: Department Selection for Hospitals */}
             {step === 3 && role === 'hospital' && (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}

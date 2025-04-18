@@ -2,13 +2,13 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import CircuitLine from '../components/CircuitLine';
 import { toast } from 'react-toastify';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import React from 'react';
 import { useAuth } from '../context/UseAuth';
 
 const Login = () => {
   const navigate = useNavigate();
-  const auth = useAuth(); // Properly store the auth context
+  const auth = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -28,7 +28,6 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      // Make sure we're using the auth object correctly
       await auth.login(formData.email, formData.password);
       toast.success('Logged in successfully!');
       
@@ -51,7 +50,7 @@ const Login = () => {
         } else {
           navigate('/');
         }
-      }, 1000); // Give some time for auth state to update
+      }, 1000);
     } catch (error) {
       setIsLoading(false);
       console.error("Login error:", error);
