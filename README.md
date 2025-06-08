@@ -28,7 +28,7 @@
 | ⚙️ Backend       | Node.js, Express.js                   |
 | 🧠 AI/ML Engine  | Gemini, Python (Scikit-learn, TensorFlow)     |
 | 💾 Database      | Firebase                           |
-| 🔐 Auth System   | FireAuth                      |
+| 🔐 Auth System   | Fire Authorization                      |
 
 ---
 
