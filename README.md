@@ -1,11 +1,11 @@
-# 🧠 OncoSense – AI-Powered Hospital Management System  
+# 🧠 Qmedix – AI-Powered Hospital Management System  
 **Smarter Care, Faster Service**
 
 ---
 
 ## 🚀 Overview
 
-**OncoSense** is an AI-powered hospital management platform built to streamline patient care, diagnostics, and administration. From intelligent doctor recommendations to smart appointment systems and digital record keeping, OncoSense enables healthcare professionals to deliver **faster, smarter, and more efficient service**, especially in oncology-focused environments.
+**Qmedix** is an AI-powered hospital management platform built to streamline patient care, diagnostics, and administration. From intelligent doctor recommendations to smart appointment systems and digital record keeping, OncoSense enables healthcare professionals to deliver **faster, smarter, and more efficient service**, especially in oncology-focused environments.
 
 ---
 
@@ -34,7 +34,7 @@
 
 ## 🏥 Ideal Use Cases
 
-- Oncology departments looking for automated support systems.
+- Medical departments looking for automated support systems.
 - Multispecialty hospitals needing fast, integrated patient management.
 - Clinics wanting efficient appointment handling and digitized records.
 
