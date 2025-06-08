@@ -26,9 +26,9 @@
 |------------------|---------------------------------------|
 | 💻 Frontend      | React.js, Tailwind CSS                |
 | ⚙️ Backend       | Node.js, Express.js                   |
-| 🧠 AI/ML Engine  | Python (Scikit-learn, TensorFlow)     |
-| 💾 Database      | Firebase, AI- Gemini                            |
-| 🔐 Auth System   | Fireauth                      |
+| 🧠 AI/ML Engine  | Gemini, Python (Scikit-learn, TensorFlow)     |
+| 💾 Database      | Firebase                           |
+| 🔐 Auth System   | FireAuth                      |
 
 ---
 
